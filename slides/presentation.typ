@@ -695,11 +695,13 @@
 #slide(id: "took", title: [What it took], tag: "burn-nostd · Burn 0.22.0")[
   #set text(size: 22pt)
   #table(
-    columns: (1.25fr, 1fr),
+    // 40pt between the columns' text (the rules still run across); the left
+    // column keeps every line it had, the right one moves the code below.
+    columns: (1.32fr, 1fr),
     stroke: (x, y) => (top: if y == 0 { none } else if y == 1 { 1.6pt + c.ink } else { 0.6pt + c.rule }),
-    inset: (x: 6pt, y: 8pt),
+    inset: (x, y) => (left: if x == 0 { 6pt } else { 20pt }, right: if x == 0 { 20pt } else { 6pt }, y: 8pt),
     table.header(text(font: fonts.head, weight: 700)[Problem], text(font: fonts.head, weight: 700)[Fix]),
-    [`web-time` and `wasm-bindgen-futures` pull std into no_std desktop and Wasm binaries], [two small shims via `[patch.crates-io]`],
+    [`web-time` and `wasm-bindgen-futures` pull std into no_std desktop and Wasm binaries], [two small shims via #box[`[patch.crates-io]`]],
     [`burn-optim` 0.22.0 does not compile without std], [Adam in #num(adam-lines) lines],
     [gemm's 512 KiB packing buffer per small product, no std, Arm], [batch size 1, one token at a time],
     [Burnpack wants 256-byte alignment], [`#[repr(align(256))]` wrapper],

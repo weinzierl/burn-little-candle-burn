@@ -9,6 +9,10 @@ burn-nostd/web/target/
 burn-nostd/qemu/target/
 burn-nostd/pico2/target/
 candle-batteries/target/
+tools/minilm-reference/target/
+# downloaded or produced locally
+tools/minilm-reference/model.onnx
+/board-log.txt
 # private: licensed fonts and anything built with them
 fonts/private/*
 !fonts/private/.gitignore

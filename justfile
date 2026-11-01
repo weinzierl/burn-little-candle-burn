@@ -5,6 +5,8 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 typst := env("TYPST", "typst")
 typst_base := "--root . --ignore-system-fonts --font-path fonts/public"
+# Where the licensed Ergonomique files are: fonts/private/, or any folder in ERGONOMIQUE_DIR
+private_fonts := env("ERGONOMIQUE_DIR", "fonts/private")
 
 default:
     @just --list --unsorted
@@ -14,15 +16,15 @@ public:
     {{typst}} compile {{typst_base}} --input fonts=public slides/presentation.typ presentation-public.pdf
     @echo "presentation-public.pdf"
 
-# Slides with Ergonomique (licensed files in fonts/private/): presentation-private.pdf
+# Slides with Ergonomique (font files in fonts/private/ or in $ERGONOMIQUE_DIR): presentation-private.pdf
 private:
     #!/usr/bin/env bash
     set -euo pipefail
-    if ! ls fonts/private/*.[ot]tf >/dev/null 2>&1; then
-      echo "No Ergonomique font files in fonts/private/ (see fonts/private/README.md)." >&2
+    if ! ls "{{private_fonts}}"/*.[ot]tf >/dev/null 2>&1; then
+      echo "No Ergonomique font files in {{private_fonts}} (see fonts/private/README.md)." >&2
       exit 1
     fi
-    {{typst}} compile {{typst_base}} --font-path fonts/private --input fonts=private \
+    {{typst}} compile {{typst_base}} --font-path "{{private_fonts}}" --input fonts=private \
       slides/presentation.typ presentation-private.pdf 2> typst-private.log || { cat typst-private.log; exit 1; }
     if grep -q "unknown font family" typst-private.log; then
       cat typst-private.log; echo "Ergonomique was not found by Typst." >&2; exit 1
@@ -39,7 +41,7 @@ notes: public check-notes
 
 # Speaker notes with thumbnails of the private deck (do not publish)
 notes-private: private check-notes
-    {{typst}} compile {{typst_base}} --font-path fonts/private --input deck=/presentation-private.pdf notes/speaker-notes.typ speaker-notes-private.pdf
+    {{typst}} compile {{typst_base}} --font-path "{{private_fonts}}" --input deck=/presentation-private.pdf notes/speaker-notes.typ speaker-notes-private.pdf
     @echo "speaker-notes-private.pdf"
 
 # Check that notes/notes.yaml matches the slide order
@@ -77,7 +79,24 @@ nostd-web:
 
 # Part 3: the firmware code paths on an emulated Cortex-M33 (needs qemu-system-arm)
 nostd-qemu:
-    cd burn-nostd/qemu && for b in sine gesture keywords tinystories; do cargo run --release -q --bin "$b"; done
+    cd burn-nostd/qemu && for b in sine gesture keywords tinystories tinystories-usb; do cargo run --release -q --bin "$b"; done
+
+# Writes burn-nostd/pico2/NAME.uf2. tinystories-usb sends the stories over USB serial,
+# tinystories-lcd also shows them on the screen of the Waveshare RP2350-Touch-LCD-3.5.
+# To flash, copy the file to the board's drive (hold BOOTSEL, on Waveshare boards BOOT, while resetting).
+# Part 3 on an RP2350 board without a debug probe: build a firmware and its UF2 file
+uf2 name="tinystories-usb":
+    cd burn-nostd/pico2 && cargo build --release --locked --bin {{name}}
+    cd burn-nostd/pico2 && python3 uf2.py target/thumbv8m.main-none-eabihf/release/{{name}} {{name}}.uf2
+
+# On macOS: just board-log /dev/cu.usbmodem... (see ls /dev/cu.usbmodem*).
+# Show and save the board's stories from its USB serial port; stops after 4 stories
+board-log port="/dev/ttyACM0" out="board-log.txt" stories="4":
+    python3 burn-nostd/pico2/board_log.py {{port}} {{out}} {{stories}}
+
+# Compare a board log with the stories QEMU wrote for the same prompts and seeds; print the speeds
+board-check log="board-log.txt":
+    python3 burn-nostd/pico2/check_log.py {{log}} burn-nostd/out/qemu-tinystories-usb.txt
 
 # Refresh candle-batteries/out and burn-nostd/out, which the slides read
 capture-examples:

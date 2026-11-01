@@ -74,11 +74,13 @@ Both run Typst with `--ignore-system-fonts` and explicit `--font-path`, so no sy
 | `just nostd` | `burn-nostd` desktop programs: sine, gesture, keywords, tinystories | no_std, libc instead of std |
 | `just nostd-web` | builds the four WebAssembly modules and serves the demo site | no wasm-bindgen, zero imports |
 | `just nostd-qemu` | the four firmware programs in QEMU `mps2-an505` | 520 KiB of RAM, like the RP2350 |
+| `just uf2` | builds `tinystories-usb` (or `just uf2 tinystories-lcd`) and its UF2 file for an RP2350 board without a debug probe | copy the file to the board's drive |
+| `just board-log`, `just board-check` | save the stories the board sends over USB serial, compare them with QEMU's, print tokens per second | Linux `/dev/ttyACM0` by default |
 | `just capture-examples` | all of `candle-batteries` and `burn-nostd`, output into their `out/` | a few minutes |
 
 Inside `candle-batteries/` and `burn-nostd/` the cargo aliases from their READMEs work too (`cargo similar "It is raining."`, `cargo tinystories -- "Once upon a time" 0.8`, `cargo web`).
 
-The Pico 2 firmware is in `burn-nostd/pico2/` (`cargo build --release` there; flashing needs probe-rs or picotool). It builds; it has not been run on a board.
+The Pico 2 firmware is in `burn-nostd/pico2/` (`cargo build --release` there; flashing needs probe-rs or picotool). It builds; the Pico 2 itself has not run it. `tinystories-usb` needs no probe: it writes the stories to the board's own USB port and has run on a Waveshare RP2350-Touch-LCD-3.5; `tinystories-lcd` also shows them on that board's screen (built, not yet run).
 
 ## Offline preparation (before travelling)
 
@@ -109,7 +111,8 @@ Everything below ran on a Linux x86-64 cloud VM with 2 vCPUs and no GPU, on 2026
 | `burn-nostd`: tests, desktop programs | built and run with Rust 1.95.0 |
 | `burn-nostd`: WebAssembly pages | built, run in headless Chromium |
 | `burn-nostd`: firmware code paths in QEMU | built and run |
-| `burn-nostd/pico2` for the Raspberry Pi Pico 2 | built only, **not run on hardware** |
+| `burn-nostd/pico2` for the Raspberry Pi Pico 2 | built only, **not run on a Pico 2** |
+| `tinystories-usb` on a Waveshare RP2350-Touch-LCD-3.5 (RP2350B) | run (1 November), no log in the repository yet; `tinystories-lcd` built, not yet run |
 | macOS, Metal, CUDA, real microphones and motion sensors | **not tested** |
 
 ## Limitations
