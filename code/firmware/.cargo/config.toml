@@ -1,0 +1,7 @@
+[build]
+target = "thumbv8m.main-none-eabihf"
+
+[target.thumbv8m.main-none-eabihf]
+# Cortex-M33 emulation (Arm MPS2 AN505 FPGA image), not a Pico 2.
+runner = "qemu-system-arm -machine mps2-an505 -cpu cortex-m33 -nographic -semihosting-config enable=on,target=native -kernel"
+rustflags = ["-C", "link-arg=-Tlink.x"]

@@ -1,0 +1,27 @@
+# Bare-metal builds for Cortex-M33 (thumbv8m.main-none-eabihf),
+# the core inside the Raspberry Pi Pico 2 (RP2350).
+# Separate workspace: different target, no std.
+[workspace]
+resolver = "3"
+members = ["qemu-m33", "burn-m33"]
+# pico2 is its own workspace: rp235x-hal turns on cortex-m-rt's "device"
+# feature, which the QEMU builds must not get through feature unification.
+exclude = ["pico2"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+tiny = { path = "../tiny" }
+cortex-m = { version = "=0.7.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "=0.7.5"
+cortex-m-semihosting = "=0.5.0"
+panic-halt = "=1.0.0"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+debug = true # symbols stay in the ELF only, not in flash

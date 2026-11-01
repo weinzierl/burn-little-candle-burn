@@ -1,0 +1,23 @@
+[package]
+name = "burn-demo"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+burn = { workspace = true, features = ["std", "flex", "simd", "autodiff", "optim", "safetensors"] }
+tiny = { path = "../tiny" }
+
+# threads only where they exist (not in wasm32-wasip1)
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+burn = { workspace = true, features = ["rayon"] }
+
+[features]
+# Only used to show a compile error on a slide:
+# cargo build --bin burn_rank_error --features show-compile-error
+show-compile-error = []
+
+[[bin]]
+name = "burn_rank_error"
+required-features = ["show-compile-error"]

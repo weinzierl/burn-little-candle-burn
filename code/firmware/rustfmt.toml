@@ -1,0 +1,3 @@
+# Narrow on purpose: code is shown on slides.
+max_width = 66
+use_small_heuristics = "Max"

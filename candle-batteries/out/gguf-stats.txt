@@ -1,0 +1,4 @@
+file smollm2-360m-instruct-q8_0.gguf: 386404992 bytes, GGUF version 3, 290 tensors
+Q8_0: 225 tensors, 361758720 weights, 384368640 bytes
+F32: 65 tensors, 62400 weights, 249600 bytes
+total: 361821120 weights

@@ -1,0 +1,9 @@
+Tensor {
+  data:
+[[7.0, 10.0],
+ [15.0, 22.0]],
+  shape:  [2, 2],
+  device:  Device<Flex(Cpu)>,
+  kind:  "Float",
+  dtype:  "f32",
+}

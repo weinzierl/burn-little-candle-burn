@@ -1,0 +1,10 @@
+ONNX Runtime 1.29.0, tokenizers 0.23.3, numpy 2.5.3
+reference model: model.onnx, one sentence per call, no padding
+similar-eat     'Where can I eat tonight?': top 'Tortellini are served till late.'
+similar-rain    'It is raining.': top 'Porticoes keep the streets dry.'
+similar-old     'How old is the city?': top 'The university dates from 1088.'
+similar-router  'How do I reset my router?': top 'The university dates from 1088.'
+largest difference in a vector coordinate: 1.71e-07
+largest difference in a score:             2.71e-07
+slide values checked: 20, different from the reference: 0
+tolerance 1e-05: PASS

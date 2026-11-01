@@ -1,0 +1,5 @@
+ 95.5 %  espresso
+  1.8 %  coffee mug
+  1.0 %  cup
+  0.8 %  consomme
+  0.6 %  chocolate sauce, chocolate syrup

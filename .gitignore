@@ -1,0 +1,18 @@
+# build output
+code/target/
+code/firmware/target/
+code/firmware/pico2/target/
+code/candle-nostd-check/target/
+code/candle-nostd-check/build.log
+burn-nostd/target/
+burn-nostd/web/target/
+burn-nostd/qemu/target/
+burn-nostd/pico2/target/
+candle-batteries/target/
+# private: licensed fonts and anything built with them
+fonts/private/*
+!fonts/private/.gitignore
+!fonts/private/README.md
+presentation-private.pdf
+speaker-notes-private.pdf
+typst-private.log

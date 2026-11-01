@@ -1,0 +1,60 @@
+corpus 1582284 chars, train 1504460, valid 77824
+parameters: 313440
+--- sample at step 0 ---
+    pub fn 8_g<$jla;hM1,eq\0&MrL:^&2nOu?;6;w8:#
+;Q@j6WiD9oR}oORX~b$2Omk&lDXR7F~ZR=.#ZYXkY}U6zdu.V"#M~|1]5xg<YWn
+---
+--- sample at step 300 ---
+    pub fn Pstc(&siffid-sus__linen = buid[ t               Ot chup::Ipr);
+    }
+
+        sn tet d !({t_h sscens
+---
+--- sample at step 1000 ---
+    pub fn CssaSeos::_afnor: Nrage Nort_e: unad as ot;
+
+    let yom: Tile: Vonyor::Cunasese {
+            Cater
+---
+step  1000  train 2.215  valid 2.131  8 s
+step  2000  train 1.777  valid 1.959  16 s
+--- sample at step 3000 ---
+    pub fn Tram::SimlDT::ToOF> F> A>Zun> &luc: &Self, T,
+        l) => Device:?inll(self, q2::sen4",}|) -> Resu
+---
+step  3000  train 1.607  valid 1.816  24 s
+step  4000  train 1.475  valid 1.771  32 s
+step  5000  train 1.413  valid 1.702  40 s
+step  6000  train 1.357  valid 1.667  48 s
+step  7000  train 1.297  valid 1.609  56 s
+step  8000  train 1.245  valid 1.591  64 s
+step  9000  train 1.191  valid 1.548  71 s
+step 10000  train 1.171  valid 1.512  79 s
+step 11000  train 1.130  valid 1.505  87 s
+step 12000  train 1.100  valid 1.506  96 s
+step 13000  train 1.072  valid 1.476  104 s
+step 14000  train 1.034  valid 1.474  113 s
+step 15000  train 1.010  valid 1.468  122 s
+step 16000  train 0.987  valid 1.418  132 s
+step 17000  train 0.969  valid 1.388  141 s
+step 18000  train 0.941  valid 1.401  150 s
+step 19000  train 0.919  valid 1.382  159 s
+step 20000  train 0.906  valid 1.379  167 s
+trained 20000 steps in 167.0 s (8.3 ms/step)
+--- sample after training ---
+    pub fn for< KAnst<::smat<Tensor>>(tenoot, &'ardimen_len});
+                let data,
+            q12
+    }
+
+    let data::bail!("unaxe vensor) -> {},
+                dtype => crate::bail!("Metal const V::Fublated::BachDType::Ufratt_mffsime == Pensor,
+                }
+                    let orritensor = namper.
+    fn ins: &Tensor) -> Result<Tensor is = layoul.
+                v2 * type,
+        if scal
+---
+saved data/charlm.safetensors
+saved data/charlm.bpk
+exit 0

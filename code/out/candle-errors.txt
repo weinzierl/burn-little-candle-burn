@@ -1,0 +1,2 @@
+Err: shape mismatch in matmul, lhs: [2, 3], rhs: [4, 5]
+Err: shape mismatch in matmul, lhs: [2, 3], rhs: [3]

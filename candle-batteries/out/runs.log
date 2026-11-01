@@ -1,0 +1,8 @@
+tensors                exit 0    0.01 s
+classify-cat           exit 0    1.09 s
+classify-coffee        exit 0    0.69 s
+similar-eat            exit 0    1.33 s
+similar-rain           exit 0    0.62 s
+similar-old            exit 0    0.66 s
+ask                    exit 0    8.19 s
+similar-router         exit 0    0.80 s

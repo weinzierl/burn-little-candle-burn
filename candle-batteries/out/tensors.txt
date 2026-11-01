@@ -1,0 +1,4 @@
+[[ 5., 14.],
+ [14., 50.]]
+Tensor[[2, 2], f32]
+shape mismatch in matmul, lhs: [2, 3], rhs: [2, 3]

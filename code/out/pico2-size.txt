@@ -1,0 +1,10 @@
+.vector_table           272   268435456
+.start_block             20   268435728
+.text                  6640   268435748
+.bi_entries               8   268442388
+.rodata             1254448   268442396
+.data                     0   536870912
+.gnu.sgstubs              0   269696864
+.end_block                0   269696864
+.bss                      4   536870912
+.uninit                   0   536870916

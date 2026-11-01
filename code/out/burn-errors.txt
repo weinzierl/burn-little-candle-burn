@@ -1,0 +1,8 @@
+
+thread 'main' (8502) panicked at ~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/burn-tensor-0.22.1/src/tensor/api/numeric.rs:842:9:
+=== Tensor Operation Error ===
+  Operation: 'Matmul'
+  Reason:
+    1. The inner dimension of matmul should be the same, but got 3 and 4. Lhs shape Shape { dims: [2, 3] }, rhs shape Shape { dims: [4, 5] }. 
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

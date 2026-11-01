@@ -1,0 +1,17 @@
+error[E0433]: cannot find `lr_scheduler` in `crate`
+  --> ~/.cargo/registry/src/…/burn-optim-0.22.0/src/optim/module/module_optimizer.rs:5:12
+  --> ~/.cargo/registry/src/…/burn-optim-0.22.0/src/lib.rs:41:9
+error: cannot find macro `vec` in this scope
+  --> ~/.cargo/registry/src/…/burn-optim-0.22.0/src/optim/module/module_optimizer.rs:71:25
+error: cannot find macro `vec` in this scope
+   --> ~/.cargo/registry/src/…/burn-optim-0.22.0/src/optim/module/module_optimizer.rs:384:19
+error[E0425]: cannot find type `String` in this scope
+  --> ~/.cargo/registry/src/…/burn-optim-0.22.0/src/optim/module/module_optimizer.rs:44:18
+  --> /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/alloc/src/string.rs:2866:0
+error[E0425]: cannot find type `String` in this scope
+   --> ~/.cargo/registry/src/…/burn-optim-0.22.0/src/optim/module/module_optimizer.rs:250:38
+   --> /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/alloc/src/string.rs:2866:0
+error[E0425]: cannot find type `String` in this scope
+   --> ~/.cargo/registry/src/…/burn-optim-0.22.0/src/optim/module/module_optimizer.rs:369:15
+   --> /rustc/59807616e1fa2540724bfbac14d7976d7e4a3860/library/alloc/src/string.rs:2866:0
+error: could not compile `burn-optim` (lib) due to 6 previous errors

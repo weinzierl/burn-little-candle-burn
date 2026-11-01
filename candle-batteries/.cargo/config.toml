@@ -1,0 +1,5 @@
+[alias]
+tensors = "run --release -p tensors"
+classify = "run --release -p classify --"
+similar = "run --release -p similar --"
+ask = "run --release -p ask --"

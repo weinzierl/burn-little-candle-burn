@@ -1,0 +1,13 @@
+[package]
+name = "qemu-m33"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+tiny.workspace = true
+cortex-m.workspace = true
+cortex-m-rt.workspace = true
+cortex-m-semihosting.workspace = true
+panic-halt.workspace = true

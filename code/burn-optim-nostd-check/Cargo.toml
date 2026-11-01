@@ -1,0 +1,11 @@
+[package]
+name = "optim-nostd-check"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Does burn-optim 0.22.0 build without std, for the Pico 2's target?
+[dependencies]
+burn-optim = { version = "=0.22.0", default-features = false }
+
+[workspace]

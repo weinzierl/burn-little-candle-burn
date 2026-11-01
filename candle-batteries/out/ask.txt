@@ -1,0 +1,1 @@
+A tensor is a mathematical object that generalizes the concept of a vector, allowing for the extension of vector calculus and linear algebra to higher-dimensional spaces.

@@ -1,0 +1,5 @@
+0.05  The university dates from 1088.
+0.01  Porticoes keep the streets dry.
+-0.00  Trains leave for Florence hourly.
+-0.00  Tortellini are served till late.
+-0.02  Two towers lean over the town.

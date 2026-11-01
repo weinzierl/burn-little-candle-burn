@@ -1,0 +1,27 @@
+[package]
+name = "pico2"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+# Raspberry Pi Pico 2 firmware. BUILT, NOT TESTED ON HARDWARE.
+# Flash with: picotool load -u -v -x -t elf <elf>   (or the UF2 route)
+
+# Own workspace: rp235x-hal enables cortex-m-rt's "device" feature, which
+# must not leak into the QEMU firmwares next door.
+[workspace]
+
+[dependencies]
+tiny = { path = "../../tiny" }
+cortex-m = { version = "=0.7.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "=0.7.5"
+panic-halt = "=1.0.0"
+rp235x-hal = { version = "=0.4.0", features = ["rt"] }
+embedded-hal = "=1.0.0"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+debug = true
