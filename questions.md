@@ -64,7 +64,8 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 | Step 4, TinyStories 260K | 1 056 540 bytes of weights; heap peak 184 036 bytes (180 KiB), KV cache 160 KiB at 128 positions, 640 KiB at 512 | QEMU |
 | TinyStories speed | 6 909 tokens/s desktop; 214 tokens/s in the browser | x86-64; headless Chromium |
 | QEMU memory | RAM limited to 520 KiB (memory.x), heap 256 KiB | mps2-an505, Cortex-M33 |
-| Pico 2 firmware size | 1.3 to 1.8 MB code per program; TinyStories adds 1.1 MB weights (board: 4 MB flash) | built, never run |
+| Pico 2 firmware size | 1.3 to 1.8 MB code per program; TinyStories adds 1.1 MB weights (board: 4 MB flash) | built; only the TinyStories programs ran on a board |
+| TinyStories on an RP2350 board | 4.3 tokens/s (124 tokens in 28.5 s), same four stories as QEMU | Waveshare RP2350-Touch-LCD-3.5 (RP2350B, 150 MHz), 1 November |
 | WebAssembly modules | 1.6 to 2.3 MB each, 0.35 to 1.25 MB gzipped | release, opt-level "s" |
 | Candle programs, x86-64, stripped | classify 17.5 MB, similar 18.6 MB, ask 19.3 MB; tensors demo 1.4 MB | release |
 | Clean release builds, 2 vCPU | candle-batteries 8 min, burn-nostd 4 min | Linux VM |
@@ -83,9 +84,9 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 
 **2. "Did you run it on a real Pico 2? How fast is it on the chip?"**
 - *Who:* embedded developers; the slides say "emulated", and they will notice.
-- **Answer:** Not yet. Everything on the microcontroller side ran in QEMU, on an emulated Cortex-M33, with the RAM limited to the Pico 2's 520 KiB. The firmware for all four steps builds with Embassy, but I have not flashed a board. QEMU checks memory and correctness, not timing, so I have no speed numbers for the chip.
-- *Evidence:* slides 2 and 34, VERIFICATION.md part 3.
-- *Careful:* no tokens per second on the MCU, no "it runs on a Pico". If a board run happens before the talk, update this answer.
+- **Answer:** Not on a Pico 2, but on its chip: step 4, TinyStories, ran on a Waveshare RP2350-Touch-LCD-3.5, an RP2350B at 150 MHz with the same 520 KiB of RAM. 4.3 tokens per second, the same four stories as in QEMU, over USB and on the board's screen. That is slow, and I have not profiled it: every token reads all 1.1 MB of weights from flash through a 16 KiB cache, and every operation goes through Burn's generic tensor layer. Steps 1 to 3 ran in QEMU only; their firmware builds.
+- *Evidence:* slides 2, 34 and 39; `burn-nostd/out/board-tinystories-usb.txt` and `board-tinystories-lcd.txt`; VERIFICATION.md part 3; photos of the board.
+- *Careful:* "an RP2350 board", not "a Pico 2". No speed claims for steps 1 to 3, and no comparison with C on the chip: none was run.
 
 **3. "How fast is it? Candle against Burn, against PyTorch, against llama.cpp?"**
 - *Who:* everyone who has read a framework benchmark.
@@ -177,7 +178,7 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 - *Evidence:* backup 47, VERIFICATION.md.
 
 **20. "Why QEMU? How realistic is it?"**
-- **Answer:** It runs the same Cortex-M33 instruction set and enforces the memory limit I set, 520 KiB of RAM and a 256 KiB heap, so memory use and correctness carry over. It does not model the RP2350's timing, its flash cache or its peripherals, so: no speed numbers. The emulated board has more RAM; the linker script cuts it to the Pico 2's size.
+- **Answer:** It runs the same Cortex-M33 instruction set and enforces the memory limit I set, 520 KiB of RAM and a 256 KiB heap, so memory use and correctness carry over. It does not model the RP2350's timing, its flash cache or its peripherals, so QEMU gives no speed numbers. The real board gave the same text as QEMU, at 4.3 tokens per second (question 2). The emulated board has more RAM; the linker script cuts it to the Pico 2's size.
 
 **21. "Burn's matmul takes self. Aren't all those clones expensive?"**
 - **Answer:** A clone only bumps a reference count; the data is not copied. Taking ownership lets Burn reuse a buffer in place when it holds the only reference, so moves can make it faster, not slower.

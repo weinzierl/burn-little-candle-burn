@@ -39,7 +39,7 @@ justfile                  all commands
 
 ## Quick start
 
-Requirements: Rust (rustup), [just](https://github.com/casey/just), [Typst](https://github.com/typst/typst) 0.15 for the slides. `burn-nostd` installs Rust 1.95 itself through its `rust-toolchain.toml`; the rest needs 1.95 or newer (tested with 1.97.0). Optional: `qemu-system-arm` for the Cortex-M33 runs, Python 3 with PyYAML for the Markdown notes.
+Requirements: Rust (rustup), [just](https://github.com/casey/just), [Typst](https://github.com/typst/typst) 0.15 for the slides. `burn-nostd` installs Rust 1.95 itself through its `rust-toolchain.toml`; the rest needs 1.95 or newer (tested with 1.97.0). Optional: `qemu-system-arm` for the Cortex-M33 runs, Python 3 with PyYAML for the Markdown notes. `just qemu` and `just firmware` build `code/firmware` with your default toolchain, which needs the target once: `rustup target add thumbv8m.main-none-eabihf`.
 
 ```sh
 just candle      # part 1: tensors, classify, similar, ask (downloads 527 MB of models once)
@@ -80,7 +80,7 @@ Both run Typst with `--ignore-system-fonts` and explicit `--font-path`, so no sy
 
 Inside `candle-batteries/` and `burn-nostd/` the cargo aliases from their READMEs work too (`cargo similar "It is raining."`, `cargo tinystories -- "Once upon a time" 0.8`, `cargo web`).
 
-The Pico 2 firmware is in `burn-nostd/pico2/` (`cargo build --release` there; flashing needs probe-rs or picotool). It builds; the Pico 2 itself has not run it. `tinystories-usb` needs no probe: it writes the stories to the board's own USB port and has run on a Waveshare RP2350-Touch-LCD-3.5; `tinystories-lcd` also shows them on that board's screen (built, not yet run).
+The Pico 2 firmware is in `burn-nostd/pico2/` (`cargo build --release` there; flashing needs probe-rs or picotool). It builds; a Pico 2 itself has not run it. `tinystories-usb` needs no probe: it writes the stories to the board's own USB port. It and `tinystories-lcd`, which also shows them on the screen, ran on a Waveshare RP2350-Touch-LCD-3.5 (RP2350B): 4.3 tokens/s, the same stories as in QEMU (`burn-nostd/out/board-*.txt`).
 
 ## Offline preparation (before travelling)
 
@@ -112,7 +112,7 @@ Everything below ran on a Linux x86-64 cloud VM with 2 vCPUs and no GPU, on 2026
 | `burn-nostd`: WebAssembly pages | built, run in headless Chromium |
 | `burn-nostd`: firmware code paths in QEMU | built and run |
 | `burn-nostd/pico2` for the Raspberry Pi Pico 2 | built only, **not run on a Pico 2** |
-| `tinystories-usb` on a Waveshare RP2350-Touch-LCD-3.5 (RP2350B) | run (1 November), no log in the repository yet; `tinystories-lcd` built, not yet run |
+| `tinystories-usb` and `tinystories-lcd` on a Waveshare RP2350-Touch-LCD-3.5 (RP2350B) | run (1 November): 4.3 tokens/s, same text as QEMU; logs in `burn-nostd/out/` |
 | macOS, Metal, CUDA, real microphones and motion sensors | **not tested** |
 
 ## Limitations

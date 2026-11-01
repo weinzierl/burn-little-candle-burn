@@ -86,6 +86,12 @@
 #let kv-bytes = kv-per-position * t-context
 #let heap-bytes = int(grab(bn + "/qemu/src/lib.rs", "init!\\(HEAP, (\\d+) \\* 1024\\)")) * 1024
 #let story-start = read(bno + "/qemu-tinystories.txt").split("\n").at(0)
+// tinystories-usb on Ludwig's Waveshare RP2350-Touch-LCD-3.5 (RP2350B, 150 MHz), 1 November 2026
+#let b-log = read(bno + "/board-tinystories-usb.txt").replace("\r", "")
+#let b-tokens = int(grab(bno + "/board-tinystories-usb.txt", "(\\d+) tokens in \\d+ ms"))
+#let b-ms = int(grab(bno + "/board-tinystories-usb.txt", "\\d+ tokens in (\\d+) ms"))
+#let b-rate = str(calc.round(b-tokens * 1000 / b-ms, digits: 1))
+#assert(b-log.split("\n").contains(story-start), message: "board log lacks the QEMU story")
 #let ask-tokens = grab(cbo + "/ask.err", "(\\d+) tokens,")
 #let ask-rate = grab(cbo + "/ask.err", "([0-9.]+) tokens/s")
 // SmolLM2 GGUF header (tools/gguf_stats.py) and the MiniLM reference check.
@@ -131,11 +137,11 @@
     column-gutter: 28pt,
     hook-col("Candle · CPU, 2 cores", [#mbr(model-size("smollm2-360m-instruct-q8_0.gguf")) MB],
       [SmolLM2-360M-Instruct, 8-bit], prose-out(read(cbo + "/ask.txt").trim(), size: 18pt)),
-    hook-col("Burn · no_std · emulated Cortex-M33", [#mb1(t-bytes) MB],
+    hook-col("Burn · no_std · RP2350 board", [#mb1(t-bytes) MB],
       [TinyStories 260K, f32, in 520 KiB of RAM], prose-out(story-start, size: 18pt)),
   )
   #v(1fr)
-  #note[Sizes of the weight files. Left: Candle 0.11 on a 2-core Linux VM. Right: Burn 0.22 without std in QEMU (mps2-an505), RAM limited to the Pico 2’s 520 KiB; not yet on a real board.]
+  #note[Sizes of the weight files. Left: Candle 0.11 on a 2-core Linux VM. Right: Burn 0.22 without std on a Waveshare RP2350 board, #b-rate tokens/s; the same text in QEMU (mps2-an505) with RAM limited to 520 KiB.]
 ]
 
 #slide(id: "me", title: [Ludwig Weinzierl])[
@@ -582,7 +588,7 @@
   tag: "burn-nostd · Burn 0.22.0 · Flex backend",
   line: stair-line,
 )[
-  #text(size: 21pt)[Each runs without std: on the desktop, as zero-import WebAssembly, and on an emulated Cortex-M33 with the Pico 2’s 520 KiB of RAM. Pico 2 firmware builds; not yet run on a board.]
+  #text(size: 21pt)[Each runs without std: on the desktop, as zero-import WebAssembly, and on an emulated Cortex-M33 with the Pico 2’s 520 KiB of RAM. Step 4 also ran on a real RP2350 board: same text, #b-rate tokens/s.]
   #v(2pt)
   #note[Candle is not in this part: it needs std. Its build for `thumbv8m.main-none-eabihf` stops at `getrandom`.]
   #let steps = (
@@ -687,6 +693,7 @@
     fact[#mb1(t-bytes) MB][of f32 weights, never copied],
     fact[#kib(q-t-heap) KiB][heap peak, #kib(kv-bytes) KiB of it KV cache],
     fact[same text][as llama2.c's `run.c`],
+    fact[#b-rate][tokens per second on a real RP2350 board],
   )
   #v(4pt)
   #note[Karpathy’s `stories260K.bin`, unchanged. Context cut to #t-context of its #t-seq-len positions: at #t-seq-len the KV cache alone would take #kib(kv-per-position * t-seq-len) KiB. At temperature 0 the text equals `run.c`’s for this prompt, 80 steps.]

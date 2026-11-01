@@ -80,19 +80,19 @@ Everything you will see today is code that ran while I prepared this talk. The c
 **Cues**
 
 - Left: Candle, 360M parameters, 386 MB, 2 CPU cores.
-- Right: Burn without std, 260K parameters, 1.1 MB of f32, emulated Cortex-M33, RAM cut to 520 KiB.
+- Right: Burn without std, 260K parameters, 1.1 MB of f32, on a real RP2350 board, 4.3 tokens/s.
 - This talk: everything in between.
 
 **Notes**
 
 Two outputs to start with. On the left, a chat model with 360 million parameters, 386 megabytes, running in Candle on two CPU cores. I asked it what a tensor is.
 
-On the right, a language model with 260 thousand parameters, one megabyte of f32 weights, running in Burn without the standard library. It ran in QEMU, on an emulated Cortex-M33, the processor core of a Raspberry Pi Pico 2, and I limited its RAM to the Pico 2's 520 KiB.
+On the right, a language model with 260 thousand parameters, one megabyte of f32 weights, running in Burn without the standard library. It runs on a real RP2350, the chip of the Raspberry Pi Pico 2, with 520 KiB of RAM, at about four tokens per second. In QEMU, on an emulated Cortex-M33 with the same memory limit, it writes exactly the same text.
 
 Same language, same idea, three orders of magnitude apart. This talk is about what sits between these two ends.
 
 > **Q:** Did the right side run on a real Pico 2?  
-> **A:** No. It ran in QEMU, on an emulated Cortex-M33 with the same memory limit. The firmware for the real board builds; I have not run it on hardware.
+> **A:** On its chip. A Waveshare board with an RP2350B, the Pico 2's chip with more pins, at 4.3 tokens per second, with the same text as in QEMU, over USB and on the board's screen. Steps one to three ran in QEMU only.
 
 ## 3. Ludwig Weinzierl
 
@@ -702,12 +702,12 @@ The other end of the scale: no operating system, no standard library, and the RA
 
 Four steps, each a bit harder: run a model, train one on the device, handle audio, run someone else's pretrained model. Each step is one no_std library crate. The desktop programs, the browser modules and the firmware are thin shells around it. Even the desktop programs are no_std: libc stands in for std.
 
-Everything in this part ran on the desktop, in the browser, and in QEMU on an emulated Cortex-M33 with the RAM limited to 520 KiB. The Pico 2 firmware builds; I have not run it on a board yet.
+Everything in this part ran on the desktop, in the browser, and in QEMU on an emulated Cortex-M33 with the RAM limited to 520 KiB. Step four also ran on a real RP2350 board; the other three firmware programs build, but I have not run them on a board.
 
 Candle is not in this part. It needs std: its build for the Pico's target stops at getrandom.
 
 > **Q:** Is there firmware for the real board?  
-> **A:** Yes, the pico2 folder builds all four steps with Embassy. I have not run it on hardware yet. QEMU runs the same code paths with the same memory limit.
+> **A:** Yes, the pico2 folder builds all four steps with Embassy. Step four ran on a Waveshare RP2350 board, over USB and on its screen. Steps one to three ran in QEMU only, with the same code paths and the same memory limit.
 
 > **Q:** Why the Flex backend?  
 > **A:** It is Burn 0.22's portable CPU backend, pure Rust, and the one that builds without std.
@@ -807,6 +807,7 @@ Training on 20 recordings takes a fraction of a second on the desktop. Then it h
 - 1.1 MB of f32 weights; heap peak 180 KiB, 160 of it KV cache.
 - Context 128 of 512: at 512 the KV cache alone is 640 KiB.
 - Same text as run.c at temperature 0.
+- Real RP2350 board: 4.3 tokens/s, same text as QEMU.
 
 **Notes**
 
@@ -817,6 +818,8 @@ The trick is three calls. Bytes::from_static wraps a slice of the checkpoint in 
 That cache holds 128 positions. The model was trained with 512, and at 512 the KV cache alone would take 640 KiB, more than the whole chip. So the firmware cuts the context to 128.
 
 At temperature zero the text is the same as from llama2.c's own C program, run.c: this prompt, 80 steps, compared as text. You saw that story on the second slide.
+
+On a real RP2350 board it writes the same stories as in QEMU, at 4.3 tokens per second.
 
 > **Q:** Could it run a bigger model?  
 > **A:** The desktop program takes other llama2.c files too; I only ran this one. The next size up, stories15M, has about 60 MB of f32 weights, far beyond a Pico 2, even with PSRAM.
