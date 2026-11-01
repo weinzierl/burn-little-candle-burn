@@ -16,7 +16,7 @@ speaker-notes.pdf         notes with slide thumbnails, sized for a phone
 speaker-notes.md          the same notes as Markdown
 questions.md              questions to expect in the Q&A, most likely first, with answers
 slides/                   presentation.typ, theme.typ, code theme, QR codes, screenshots,
-  media/video/            fallback videos of the four demo pages
+  media/video/            fallback videos of the four demo pages; board.mp4, the board writing
 notes/                    notes.yaml (single source), speaker-notes.typ
 candle-batteries/         part 1: four Candle programs (own Cargo workspace)
   out/                    captured output; the slides read these files

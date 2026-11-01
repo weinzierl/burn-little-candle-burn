@@ -129,3 +129,4 @@ Checked on 2026-10-31.
 
 - `seventies`: Ludwig Weinzierl's Typst slide kit (1970s Swiss, full-bleed flat colour, one continuous line), used for colours, the line, the candle and the code colours (`slides/code.tmTheme` is the kit's `seventies.tmTheme`).
 - The line after Osvaldo Cavandoli's *La Linea* (1971), as an homage; no drawing from the series is reproduced.
+- English Wikipedia, "Osvaldo Cavandoli" (read 2026-11-01), for backup slide 51: 1 January 1920 to 3 March 2007, pen name Cava. The still from La Linea on that slide comes from Ludwig.

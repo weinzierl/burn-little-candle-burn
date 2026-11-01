@@ -4,7 +4,7 @@ Checks the MiniLM numbers on the slides (the `similar` program in `candle-batter
 
 - `src/main.rs` (`minilm-precise`): prints the vectors and scores that `similar` computes, as JSON, at full precision. Its `embed` function is copied unchanged from `candle-batteries/3-similar/src/main.rs`; same model files from the Hub cache, same batching and padding.
 - `check.py`: computes the reference vectors and compares; also compares the two-decimal scores in `candle-batteries/out/similar-*.txt`, which the slides show.
-- `result.txt`: the result of the run on 2026-10-31.
+- `result.txt`: the result of the run on 2026-11-01 (sentence "Fast trains run to Florence." instead of "Trains leave for Florence hourly.").
 
 Python is only a verification tool here; nothing in the talk needs it.
 

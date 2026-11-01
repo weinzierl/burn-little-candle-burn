@@ -343,7 +343,13 @@
   lines.slice(from, to).join("\n")
 }
 
-#let label-text(t) = caps(t, size: 14pt, weight: 600)
+// A shell command as label stays code: "$ cargo ...", not letter-spaced capitals.
+#let label-text(t) = if type(t) == str and t.starts-with("cargo ") {
+  show raw: set text(size: 16pt, weight: 600)
+  raw("$ " + t)
+} else {
+  caps(t, size: 14pt, weight: 600)
+}
 
 // Source code block (light). Long lines can be wrapped for display with
 // `wrap: N`; continuations start with an accent "↪".

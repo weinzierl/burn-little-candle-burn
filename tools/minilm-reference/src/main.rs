@@ -17,7 +17,7 @@ const DOCS: [&str; 5] = [
     "Tortellini are served till late.",
     "Porticoes keep the streets dry.",
     "The university dates from 1088.",
-    "Trains leave for Florence hourly.",
+    "Fast trains run to Florence.",
 ];
 
 /// The queries on the slides, in the order of the capture script.

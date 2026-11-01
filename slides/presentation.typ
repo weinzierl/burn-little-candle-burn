@@ -208,12 +208,12 @@
   )
 ]
 
-#slide(id: "candle", title: [Candle], tag: "Hugging Face · since 2023 · 0.11")[
+#slide(id: "candle", title: [Candle], tag: "Hugging Face · since 2023 · 0.11.0")[
   #text(size: 24pt, fill: c.grey)[“Minimalist ML framework for Rust with a focus on performance (including GPU support) and ease of use.”]
   #v(12pt)
   - PyTorch-like API: runtime shapes, errors as `Result`
   - Goal: serverless inference, Python out of production
-  - `candle-transformers`: 100 model implementations, plus 22 quantized (GGUF) variants
+  - `candle-transformers`: a model zoo, many also quantized (GGUF)
   - CPU (MKL, Accelerate), CUDA, Metal, WebAssembly
 ]
 
@@ -358,7 +358,7 @@
   #note[The architecture comes from `candle-transformers`, the weights from the Hub. Scaling the image like the training images is your job.]
 ]
 
-#slide(id: "similar", title: [A sentence: MiniLM], tag: "Candle 0.11 · candle-batteries step 3")[
+#slide(id: "similar", title: [A sentence: MiniLM], tag: "Candle 0.11 · all-MiniLM-L6-v2 · mean pooling")[
   #code(cut(cb + "/3-similar/src/main.rs", "let hidden = model.forward", "Ok(mean.broadcast_div"), size: 20pt, label: "one vector per sentence")
   #v(8pt)
   #code(cut(cb + "/3-similar/src/main.rs", "// Unit vectors", "let scores ="), size: 20pt, label: "compare")
@@ -366,19 +366,27 @@
   #note[The model returns one vector per token. Averaging them into one vector per sentence, and making it length 1, is the part you write. Count the padding and it still compiles and runs: correct Rust, wrong embeddings.]
 ]
 
+// Scores as printed by `similar`, for the slide: a real minus sign, no "-0.00",
+// and the numbers right-aligned so the sentences line up.
+#let scores(path) = read(path).trim().split("\n").map(line => {
+  let (score, ..rest) = line.split("  ")
+  let v = if score == "-0.00" { "0.00" } else { score.replace("-", "−") }
+  (if v.starts-with("−") { "" } else { " " }) + v + "  " + rest.join("  ")
+}).join("\n")
+
 #slide(id: "similar-out", title: [Five sentences about Bologna], tag: "Candle 0.11 · CPU · ran on Linux x86-64")[
   #grid(
     columns: (1fr, 1fr),
     column-gutter: 12pt,
-    term(read(cbo + "/similar-eat.txt").trim(), size: 16pt, label: "“Where can I eat tonight?”"),
-    term(read(cbo + "/similar-rain.txt").trim(), size: 16pt, label: "“It is raining.”"),
+    term(scores(cbo + "/similar-eat.txt"), size: 16pt, label: "“Where can I eat tonight?”"),
+    term(scores(cbo + "/similar-rain.txt"), size: 16pt, label: "“It is raining.”"),
   )
   #v(10pt)
   #grid(
     columns: (1fr, 1fr),
     column-gutter: 12pt,
-    term(read(cbo + "/similar-old.txt").trim(), size: 16pt, label: "“How old is the city?”"),
-    term(read(cbo + "/similar-router.txt").trim(), size: 16pt, label: "“How do I reset my router?”"),
+    term(scores(cbo + "/similar-old.txt"), size: 16pt, label: "“How old is the city?”"),
+    term(scores(cbo + "/similar-router.txt"), size: 16pt, label: "“How do I reset my router?”"),
   )
   #v(1fr)
   #note[Cosine similarity: 1 means the same direction. The tortellini sentence shares no word with its question. The router question still gets a top sentence: nearest is not relevant.]
@@ -397,7 +405,7 @@
   #v(6pt)
   #text(size: 22pt)[#ask-tokens tokens, #ask-rate tokens/s on 2 CPU cores, 8-bit weights.]
   #v(1fr)
-  #note[Sampling: top-p 0.9, temperature 0.5, seed 42. Same seed, same answer on this machine; Metal and CUDA are cargo features.]
+  #note[Sampling: top-p 0.9, temperature 0.5, seed 42. Same seed, same answer on this machine. \ Metal and CUDA are cargo features.]
 ]
 
 #slide(id: "you-write", title: [What Candle gives you, what you write], tag: "concept")[
@@ -413,7 +421,7 @@
     [GGUF reader, sampler, KV cache], [the loop that asks for the next token],
   )
   #v(1fr)
-  #note[`candle-transformers` 0.11 ships 100 model implementations and 22 quantized variants.]
+  #note[`candle-transformers` 0.11.0 ships 100 model implementations and 22 quantized variants.]
 ]
 
 // ------------------------------------------------------------------
@@ -443,7 +451,7 @@
     )).flatten()
   )
   #v(1fr)
-  #note[`w`: all weights, `lr`: learning rate. The simplest form: squared error and plain gradient descent. Every training run in this talk follows this loop, with Adam, and the classifiers with cross-entropy.]
+  #note[`w`: all weights, `lr`: learning rate. The simplest form: squared error and plain gradient descent. Every training run in this talk follows this loop, using Adam instead of plain descent; the classifiers use cross-entropy instead of squared error.]
 ]
 
 #slide(id: "sine-task", title: [Experiment 1: learn sin(x)], tag: "concept")[
@@ -517,7 +525,7 @@
           text(font: fonts.body, size: 16pt, fill: c.grey)[Candle],
           text(font: fonts.body, size: 16pt, fill: c.grey)[Burn],
         ),
-        ..cl.zip(bl).map(((a, b)) => (a.at(0), a.at(1), b.at(1))).flatten(),
+        ..cl.zip(bl).map(((a, b)) => (num(int(a.at(0))), a.at(1), b.at(1))).flatten(),
       )
     ],
     [
@@ -543,7 +551,7 @@
   )
   #v(1fr)
   #let us(fw) = read(out + "/sine-timing.txt").split("\n").filter(l => l.starts-with(fw + " ")).map(l => int(l.split("(").at(1).split(" ").at(0)))
-  #note[Loss (mean squared error) after every 250 updates; the 2000 row is a check after the loop. The first losses differ in the last digit: floating point, likely Burn’s SIMD adding in another order. Informal timing, five runs each on 2 vCPUs: Candle #calc.min(..us("candle")) to #calc.max(..us("candle"))~µs per step, Burn #calc.min(..us("burn")) to #calc.max(..us("burn"))~µs.]
+  #note[Loss (mean squared error) after every 250 updates; the 2 000 row is a check after the loop. The first loss differs in the last digit: floating point, likely Burn’s SIMD adding in another order. Informal timing, five runs each on 2 vCPUs: Candle #calc.min(..us("candle")) to #calc.max(..us("candle"))~µs per step, Burn #calc.min(..us("burn")) to #calc.max(..us("burn"))~µs.]
 ]
 
 #slide(id: "layout", title: [The detail that made it work], tag: "Candle · Burn")[
@@ -585,10 +593,10 @@
 #slide(
   id: "steps",
   title: [Four steps, one `#![no_std]` crate each],
-  tag: "burn-nostd · Burn 0.22.0 · Flex backend",
+  tag: "Burn no_std · Burn 0.22.0 · Flex backend",
   line: stair-line,
 )[
-  #text(size: 21pt)[Each runs without std: on the desktop, as zero-import WebAssembly, and on an emulated Cortex-M33 with the Pico 2’s 520 KiB of RAM. Step 4 also ran on a real RP2350 board: same text, #b-rate tokens/s.]
+  #text(size: 21pt)[Each runs without std: on the desktop, as zero-import WebAssembly, and on an emulated Cortex-M33 limited to the Pico 2’s 520 KiB of RAM, 256 KiB of it heap. Step 4 also ran on a real RP2350 board: same text, #b-rate tokens/s.]
   #v(2pt)
   #note[Candle is not in this part: it needs std. Its build for `thumbv8m.main-none-eabihf` stops at `getrandom`.]
   #let steps = (
@@ -621,7 +629,7 @@
       columns: (1fr, 1fr),
       row-gutter: 14pt,
       column-gutter: 14pt,
-      fact[#num(sine-bytes)][bytes in flash, one Burnpack file],
+      fact[#num(sine-bytes)][bytes of Burnpack, #num(321 * 4) of them weights],
       fact[#sine-us µs][per inference, desktop],
       fact[#sine-err][largest error, 25 points],
       fact[#num(q-sine-heap)][bytes heap peak, emulated M33],
@@ -641,7 +649,7 @@
   #note[`Learner` is the demo’s own helper. Training and test windows come from one synthetic generator, as on the browser page. On the Pico 2 an IMU and a button would supply them: built, not yet run.]
 ]
 
-#slide(id: "step2-adam", title: [Two things std would have given], tag: "burn-nostd · checked against the crates' sources")[
+#slide(id: "step2-adam", title: [Two things std would have given], tag: "Burn no_std · checked against the crates’ sources")[
   #code(cut(bn + "/2-gesture/src/lib.rs", "let loss = loss_fn.forward", "self.net = self.adam.step"), size: 18pt, wrap: 74, label: "inside train(): one example at a time")
   #v(8pt)
   - `burn-optim` 0.22.0 does not compile without std (6 errors, thumbv8m). Our `adam` is #num(adam-lines) lines: a `ModuleMapper` that updates each parameter.
@@ -693,13 +701,30 @@
     fact[#mb1(t-bytes) MB][of f32 weights, never copied],
     fact[#kib(q-t-heap) KiB][heap peak, #kib(kv-bytes) KiB of it KV cache],
     fact[same text][as llama2.c's `run.c`],
-    fact[#b-rate][tokens per second on a real RP2350 board],
   )
   #v(4pt)
   #note[Karpathy’s `stories260K.bin`, unchanged. Context cut to #t-context of its #t-seq-len positions: at #t-seq-len the KV cache alone would take #kib(kv-per-position * t-seq-len) KiB. At temperature 0 the text equals `run.c`’s for this prompt, 80 steps.]
 ]
 
-#slide(id: "took", title: [What it took], tag: "burn-nostd · Burn 0.22.0")[
+#slide(id: "board", title: [The same model on a real chip], tag: "tinystories-lcd · Waveshare RP2350-Touch-LCD-3.5 · RP2350B, 150 MHz")[
+  #grid(
+    columns: (auto, 1fr),
+    column-gutter: 32pt,
+    align: (left + top, left + top),
+    box(stroke: 0.6pt + c.rule, image("media/board-tinystories.jpg", height: 285pt)),
+    [
+      #fact[#b-rate][tokens per second: #b-tokens tokens in #str(calc.round(b-ms / 1000, digits: 1)) s]
+      #v(12pt)
+      #fact[same text][as in QEMU, all four stories]
+      #v(12pt)
+      #fact[520 KiB][of RAM, no OS, no std]
+    ],
+  )
+  #v(1fr)
+  #note[Photo of 1 November: story 11, temperature 0.8; the screen version takes the four prompts in turn. The numbers come from the USB log of `tinystories-usb`.]
+]
+
+#slide(id: "took", title: [What it took], tag: "Burn no_std · Burn 0.22.0")[
   #set text(size: 22pt)
   #table(
     // 40pt between the columns' text (the rules still run across); the left
@@ -708,7 +733,7 @@
     stroke: (x, y) => (top: if y == 0 { none } else if y == 1 { 1.6pt + c.ink } else { 0.6pt + c.rule }),
     inset: (x, y) => (left: if x == 0 { 6pt } else { 20pt }, right: if x == 0 { 20pt } else { 6pt }, y: 8pt),
     table.header(text(font: fonts.head, weight: 700)[Problem], text(font: fonts.head, weight: 700)[Fix]),
-    [`web-time` and `wasm-bindgen-futures` pull std into no_std desktop and Wasm binaries], [two small shims via #box[`[patch.crates-io]`]],
+    [`web-time`, `wasm-bindgen-futures` pull in std], [two small shims via #box[`[patch.crates-io]`]],
     [`burn-optim` 0.22.0 does not compile without std], [Adam in #num(adam-lines) lines],
     [gemm's 512 KiB packing buffer per small product, no std, Arm], [batch size 1, one token at a time],
     [Burnpack wants 256-byte alignment], [`#[repr(align(256))]` wrapper],
@@ -762,7 +787,7 @@
       stroke: (x, y) => (top: if y < 2 { none } else { 0.6pt + c.rule }),
       table.header([], text(font: fonts.head, weight: 700)[Reach for], text(font: fonts.head, weight: 700)[Because]),
       [Run a model from the Hub], [Candle], [model zoo, tokenizers, GGUF],
-      [Train in Rust], [Burn], [autodiff, optimizers, `Learner`],
+      [Train in Rust], [Burn], [`Learner` built in; Candle trains too],
       [Train on the device], [Burn], [autodiff works without std],
       [Microcontroller], [Burn], [Flex is `no_std`; Candle needs std],
       [GPUs beyond CUDA, Metal], [Burn], [CubeCL: Vulkan, WebGPU],
@@ -782,7 +807,7 @@
     text(font: fonts.head, weight: 700, size: 44pt, fill: c.accent)[1],
     [*Candle: batteries included.* A model from the Hub is a download and a few lines. What you write is the part around it.],
     text(font: fonts.head, weight: 700, size: 44pt, fill: c.accent)[2],
-    [*Burn goes all the way down.* The same `Module` trains on a laptop and on an emulated Cortex-M33 with 520 KiB of RAM.],
+    [*Burn goes all the way down.* The same no_std crates train on a desktop and on an emulated Cortex-M33 in 520 KiB of RAM; a language model runs on a real RP2350.],
     text(font: fonts.head, weight: 700, size: 44pt, fill: c.accent)[3],
     [*They agree.* Same start, same data: the printed losses match to six decimals from step 250 on.],
   )
@@ -855,7 +880,7 @@
     [
       #label-text("Candle · GGUF Q8_0 · our SmolLM2")
       - 32 weights share one f16 scale: 34~bytes, 8.5~bits a weight.
-      - #str(calc.round(q8-weights / 1000000, digits: 1)) million weights: #mbr(q8-bytes)~MB, not #str(calc.round(all-weights * 4 / 1000000000, digits: 2))~GB as f32.
+      - #str(calc.round(q8-weights / 1000000, digits: 1)) million weights: #mbr(q8-bytes)~MB of weights (the file: #mbr(model-size("smollm2-360m-instruct-q8_0.gguf"))~MB), not #str(calc.round(all-weights * 4 / 1000000000, digits: 2))~GB as f32.
       - On the CPU the activations are quantized to the same blocks and multiplied as 8-bit integers.
     ],
     [
@@ -879,4 +904,19 @@
   - Load once, time inference alone, repeat, take the median.
   #v(1fr)
   #note[All times in this talk are CPU times from a shared VM: none is a benchmark.]
+]
+
+#slide(id: "b-cavandoli", title: [Grazie, Cava], tag: "backup · the design of these slides")[
+  #grid(
+    columns: (auto, 1fr),
+    column-gutter: 36pt,
+    align: (left + top, left + bottom),
+    image("media/la-linea.jpg", height: 290pt),
+    [
+      #set text(size: 24pt)
+      The design of these slides is a tribute to *Osvaldo Cavandoli* (1920 to 2007) and his *La Linea*.
+      #v(12pt)
+      #note[La Linea © Osvaldo Cavandoli]
+    ],
+  )
 ]

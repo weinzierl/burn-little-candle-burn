@@ -43,9 +43,9 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 - Repeat the question, for the room and the recording.
 - Verdict first, then one fact, then the limit: "I haven't measured that" is a full,
   good answer. Never improvise a number; use the table below.
-- Backup slides: 47 how a model comes in, 48 quantization, 49 timing GPU code.
+- Backup slides: 48 how a model comes in, 49 quantization, 50 timing GPU code, 51 the design, a tribute to Osvaldo Cavandoli and La Linea.
 - If a maintainer corrects you: thank them, note it, take it to the hallway.
-- About 5 minutes are left for questions (39:50 planned). Two or three questions,
+- About 5 minutes are left for questions (40:00 planned). Two or three questions,
   then point to the repository and the hallway.
 
 ## Numbers at hand
@@ -79,19 +79,19 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 - *Variants:* "...for embeddings in my web service?", "...to run an LLM locally?", "...to train my own model?"
 - *Who:* almost everyone; the abstract promises "enough context to pick the right tool".
 - **Answer:** To run a model that already exists, especially from the Hugging Face Hub: Candle. The model zoo, tokenizers and GGUF are there. To train in Rust, to train on the device, for microcontrollers, or for GPUs beyond CUDA and Metal: Burn. If you only need to run an ONNX model in a service, ort, the ONNX Runtime bindings, is the pragmatic choice; it is C++ underneath, so no no_std. And you can use both: weights travel as safetensors.
-- *Evidence:* slide 43.
+- *Evidence:* slide 44.
 - *Careful:* "my reading, November 2026"; GPUs not tested.
 
 **2. "Did you run it on a real Pico 2? How fast is it on the chip?"**
 - *Who:* embedded developers; the slides say "emulated", and they will notice.
 - **Answer:** Not on a Pico 2, but on its chip: step 4, TinyStories, ran on a Waveshare RP2350-Touch-LCD-3.5, an RP2350B at 150 MHz with the same 520 KiB of RAM. 4.3 tokens per second, the same four stories as in QEMU, over USB and on the board's screen. That is slow, and I have not profiled it: every token reads all 1.1 MB of weights from flash through a 16 KiB cache, and every operation goes through Burn's generic tensor layer. Steps 1 to 3 ran in QEMU only; their firmware builds.
-- *Evidence:* slides 2, 34 and 39; `burn-nostd/out/board-tinystories-usb.txt` and `board-tinystories-lcd.txt`; VERIFICATION.md part 3; photos of the board.
+- *Evidence:* slides 2, 34 and 40 (photo of the board); `burn-nostd/out/board-tinystories-usb.txt` and `board-tinystories-lcd.txt`; VERIFICATION.md part 3.
 - *Careful:* "an RP2350 board", not "a Pico 2". No speed claims for steps 1 to 3, and no comparison with C on the chip: none was run.
 
 **3. "How fast is it? Candle against Burn, against PyTorch, against llama.cpp?"**
 - *Who:* everyone who has read a framework benchmark.
-- **Answer:** I did not benchmark, on purpose. All my times are CPU times on a shared two-core VM. For sin(x) both land in the same range, 526 to 685 microseconds per step for Candle and 540 to 683 for Burn, five runs each: that measures framework overhead on a tiny model, not arithmetic. SmolLM2 at 8 bits: 4.2 tokens per second on two cores. No GPU, no PyTorch, no llama.cpp comparison. How to time it properly: backup slide 49.
-- *Evidence:* slides 23 and 31, backup 49.
+- **Answer:** I did not benchmark, on purpose. All my times are CPU times on a shared two-core VM. For sin(x) both land in the same range, 526 to 685 microseconds per step for Candle and 540 to 683 for Burn, five runs each: that measures framework overhead on a tiny model, not arithmetic. SmolLM2 at 8 bits: 4.2 tokens per second on two cores. No GPU, no PyTorch, no llama.cpp comparison. How to time it properly: backup slide 50.
+- *Evidence:* slides 23 and 31, backup 50.
 - *Careful:* never "X is faster".
 
 **4. "Why not just use ort (ONNX Runtime), tract, or tch-rs?"**
@@ -109,12 +109,12 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 **6. "Does it use my Mac's GPU? CUDA? Did you test GPUs?"**
 - *Who:* the many MacBook users; GPU people.
 - **Answer:** Not tested; everything in the talk ran on CPUs. Candle: Metal and CUDA are cargo features, Accelerate and MKL speed up the CPU, and the README mentions multi-GPU through NCCL. Burn: CubeCL backends for CUDA, ROCm, Metal, Vulkan and WebGPU, chosen at run time since 0.22. If you time GPU code: warm up, then synchronize before you stop the clock.
-- *Evidence:* slides 7 and 8, backup 49, REFERENCES.md.
+- *Evidence:* slides 7 and 8, backup 50, REFERENCES.md.
 
 **7. "How do I get my PyTorch model into Rust?"**
 - *Who:* the Python people the abstract invited.
-- **Answer:** Two routes, backup slide 47. Weights only: save safetensors from PyTorch and write or reuse the architecture in Rust. In Candle, candle-transformers has 100 models; in Burn you write the module and load with burn-store, whose adapters fix PyTorch's Linear layout. Whole graph: export ONNX. Burn's burn-onnx turns it into Rust code at build time; Candle's candle-onnx evaluates it at run time. Then compare the outputs on the same inputs with PyTorch, as I did for MiniLM against ONNX Runtime.
-- *Evidence:* backup 47, slide 32.
+- **Answer:** Two routes, backup slide 48. Weights only: save safetensors from PyTorch and write or reuse the architecture in Rust. In Candle, candle-transformers has 100 models; in Burn you write the module and load with burn-store, whose adapters fix PyTorch's Linear layout. Whole graph: export ONNX. Burn's burn-onnx turns it into Rust code at build time; Candle's candle-onnx evaluates it at run time. Then compare the outputs on the same inputs with PyTorch, as I did for MiniLM against ONNX Runtime.
+- *Evidence:* backup 48, slide 32.
 - *Careful:* ONNX operator coverage varies; check the list.
 
 ### Likely
@@ -135,7 +135,7 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 
 **11. "Can I run Llama, Qwen or Mistral locally with Candle? How does it compare with llama.cpp or Ollama?"**
 - *Who:* the LLM-app crowd.
-- **Answer:** Yes. candle-transformers has 100 model implementations plus 22 quantized GGUF variants, and Candle reads GGUF files from 2-bit to 8-bit. Built on Candle are mistral.rs, an LLM inference engine, and candle-vllm, an OpenAI-compatible server. I measured only SmolLM2 with 360 million parameters on two CPU cores. If you just want a local chatbot, llama.cpp and Ollama are the established choice; Candle is for when the model should run inside your own Rust program.
+- **Answer:** Yes. candle-transformers 0.11.0 has 100 model implementations plus 22 quantized GGUF variants, and Candle reads GGUF files from 2-bit to 8-bit. Built on Candle are mistral.rs, an LLM inference engine, and candle-vllm, an OpenAI-compatible server. I measured only SmolLM2 with 360 million parameters on two CPU cores. If you just want a local chatbot, llama.cpp and Ollama are the established choice; Candle is for when the model should run inside your own Rust program.
 - *Careful:* no speed comparison with llama.cpp.
 
 **12. "How big are the binaries? How long do builds take?"**
@@ -152,12 +152,12 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 **14. "How hard was it to get Burn working without std?"**
 - *Who:* embedded developers, keynote listeners.
 - **Answer:** Burn's core crates build without std: tensor, autodiff, nn, store and the Flex backend. A whole program needed five fixes, all in my code, no fork: two shims for web-time and wasm-bindgen-futures in the no_std desktop and WebAssembly builds, a 78-line Adam because burn-optim 0.22.0 does not compile without std, batch size 1 because gemm would allocate a 512 KiB buffer per small matrix-matrix product, a 256-byte aligned wrapper for Burnpack weights, and two empty unwinder symbols for the Linux binary. Burn's own book has a Pico 2 chapter too.
-- *Evidence:* slides 37 and 40.
+- *Evidence:* slides 37 and 41.
 
 **15. "Why f32 on a microcontroller? Why not int8, CMSIS-NN or TensorFlow Lite Micro?"**
 - *Who:* embedded ML people.
 - **Answer:** The RP2350's Cortex-M33 has a single-precision FPU, and my goal was Burn's normal code path without std, not the smallest model. For int8 on microcontrollers, TensorFlow Lite Micro with CMSIS-NN is the established route; in Rust, MicroFlow from the University of Padova compiles quantized TFLite models into no_std code and was tested on ESP32, nRF52840 and others. Burn's quantization today is post-training and dequantizes before it computes, so it saves storage, not arithmetic.
-- *Evidence:* backup 48.
+- *Evidence:* backup 49.
 - *Careful:* you have not used MicroFlow or TFLite Micro.
 
 **16. "Does it work on ESP32, nRF52, STM32, or the RP2350's RISC-V cores?"**
@@ -175,7 +175,7 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 
 **19. "How do you know the outputs are right?"**
 - **Answer:** Each against an independent reference. MiniLM against the official ONNX export in ONNX Runtime: within 0.0000003, all 20 values on the slide identical. TinyStories against Karpathy's run.c: same text for 80 steps. sin(x): Candle and Burn agree to six decimals. Model files: hashes equal to the Hub's metadata. Loaded is not checked.
-- *Evidence:* backup 47, VERIFICATION.md.
+- *Evidence:* backup 48, VERIFICATION.md.
 
 **20. "Why QEMU? How realistic is it?"**
 - **Answer:** It runs the same Cortex-M33 instruction set and enforces the memory limit I set, 520 KiB of RAM and a 256 KiB heap, so memory use and correctness carry over. It does not model the RP2350's timing, its flash cache or its peripherals, so QEMU gives no speed numbers. The real board gave the same text as QEMU, at 4.3 tokens per second (question 2). The emulated board has more RAM; the linker script cuts it to the Pico 2's size.

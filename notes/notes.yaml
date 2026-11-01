@@ -89,7 +89,7 @@
   cue:
   - Hugging Face, first release August 2023, now 0.11.
   - 'Inference first: serverless, no Python in production.'
-  - 100 models in candle-transformers (+22 quantized).
+  - 'candle-transformers: a model zoo, many also quantized.'
   notes: |
     Candle comes from Hugging Face. The first release on crates.io was in August 2023; the current one is 0.11.
 
@@ -97,7 +97,7 @@
 
     The API feels like PyTorch. Shapes are runtime values, and operations that can fail return a Result.
 
-    The big asset is candle-transformers: in 0.11 I counted 100 model implementations, plus 22 quantized variants that load llama.cpp GGUF files. Llama, Mistral, Qwen, Gemma, Whisper, Stable Diffusion, and many more.
+    The big asset is candle-transformers: in 0.11.0 I counted 100 model implementations, plus 22 quantized variants that load llama.cpp GGUF files. Llama, Mistral, Qwen, Gemma, Whisper, Stable Diffusion, and many more.
 
     Backends: CPU, with MKL or Apple Accelerate as options; CUDA; Metal; and WebAssembly.
   qa:
@@ -371,7 +371,7 @@
 
     Then you adjust: move every weight a small step against its gradient. The size of the step is the learning rate. The optimizer we use, Adam, is a smarter version of this step: it keeps running averages per weight.
 
-    Repeat until the loss stops falling. This is the simplest form. Every training run in this talk follows this loop, with Adam, and the two classifiers with cross-entropy as the loss.
+    Repeat until the loss stops falling. This is the simplest form. Every training run in this talk follows this loop, using Adam instead of the plain step; the two classifiers use cross-entropy instead of squared error.
   qa:
   - q: And the pretrained models?
     a: Others trained them with the same loop, at a far larger scale. We only run them.
@@ -435,7 +435,7 @@
   - 'Plot: dots on the sine. Max error 0.0075, training points.'
   - 'Timing: five runs each, informal, not a benchmark.'
   notes: |
-    And here is the answer: the loss after every 250 updates, Candle on the left, Burn on the right. The 2000 row is one more check after the loop.
+    And here is the answer: the loss after every 250 updates, Candle on the left, Burn on the right. The 2 000 row is one more check after the loop.
 
     From row 250 on, the printed numbers are identical to six decimals. In the first row they differ in the last digit. That is floating point: most likely Burn's SIMD code adds in a different order, and a different order rounds differently.
 
@@ -499,7 +499,7 @@
 
     The one trap: Burnpack wants its data aligned to 256 bytes, and include_bytes guarantees one. Hence the little wrapper struct.
 
-    The file is 2 564 bytes; the 321 weights themselves, as f32, are 1 284 of them. A few microseconds per inference on the desktop, and the largest error at 25 test points is 0.02. On the emulated Cortex-M33 the heap peaks under 8 KiB. The training program, also without std, reproduces this file byte for byte.
+    The file is 2 564 bytes; the 321 weights themselves, as f32, are 1 284 of them; the rest is the header and padding, because Burnpack starts every tensor on a 256-byte boundary. A few microseconds per inference on the desktop, and the largest error at 25 test points is 0.02. On the emulated Cortex-M33 the heap peaks under 8 KiB. The training program, also without std, reproduces this file byte for byte.
 - id: step2
   title: 2 · Training on the device
   time: 75
@@ -553,14 +553,13 @@
     a: The desktop program reads WAV files, so recordings of your own voice can go in. I have not measured that.
 - id: step4
   title: 4 · Someone else's model, straight from flash
-  time: 90
+  time: 75
   cue:
   - Karpathy's TinyStories 260K, llama2.c file unchanged; own Llama code.
   - 'from_static, from_shared, from_bytes: tensors borrow flash.'
   - 1.1 MB of f32 weights; heap peak 180 KiB, 160 of it KV cache.
   - 'Context 128 of 512: at 512 the KV cache alone is 640 KiB.'
   - Same text as run.c at temperature 0.
-  - 'Real RP2350 board: 4.3 tokens/s, same text as QEMU.'
   notes: |
     Step four: someone else's pretrained model. Andrej Karpathy's TinyStories 260K, a tiny Llama trained on children's stories, in the file format of his llama2.c project, unchanged. The model code is my own: the Llama layers, written with Burn tensors.
 
@@ -569,11 +568,20 @@
     That cache holds 128 positions. The model was trained with 512, and at 512 the KV cache alone would take 640 KiB, more than the whole chip. So the firmware cuts the context to 128.
 
     At temperature zero the text is the same as from llama2.c's own C program, run.c: this prompt, 80 steps, compared as text. You saw that story on the second slide.
-
-    On a real RP2350 board it writes the same stories as in QEMU, at 4.3 tokens per second.
   qa:
   - q: Could it run a bigger model?
     a: The desktop program takes other llama2.c files too; I only ran this one. The next size up, stories15M, has about 60 MB of f32 weights, far beyond a Pico 2, even with PSRAM.
+- id: board
+  title: The same model on a real chip
+  time: 25
+  cue:
+  - 'Waveshare board, RP2350B: the Pico 2''s chip, 150 MHz, 520 KiB.'
+  - 4.3 tokens/s; same four stories as QEMU.
+  - Slow, not profiled.
+  notes: |
+    And here it is on a real chip: a Waveshare board with an RP2350, the chip of the Pico 2, at 150 megahertz with 520 KiB of RAM. Four point three tokens per second, and the same stories, word for word, as in QEMU.
+
+    That is slow. I have not profiled it yet; every token reads all the weights from flash.
 - id: took
   title: What it took
   time: 60
@@ -639,14 +647,14 @@
   time: 50
   cue:
   - '1 Candle: batteries included.'
-  - '2 Burn goes all the way down: laptop to emulated M33.'
+  - '2 Burn goes all the way down: desktop, emulated M33, real RP2350.'
   - '3 They agree: six decimals from step 250 on.'
   notes: |
     Three things I take home.
 
     One: Candle is batteries included. A model from the Hub is a download and a few lines, and the code you write is the code around the model.
 
-    Two: Burn goes all the way down. The same Module trains on a laptop and on an emulated Cortex-M33 with 520 KiB of RAM.
+    Two: Burn goes all the way down. The same no_std crates train on a desktop and on an emulated Cortex-M33 in 520 KiB of RAM, and the language model runs on a real RP2350.
 
     Three: given the same start and the same data, they agree: the printed losses match to six decimals from step 250 on.
 - id: try
@@ -725,3 +733,11 @@
     Burn also has `device.profile`, which measures device time. Its fusion backend holds the last operations of a closure back to batch them, so end the closure with a read.
 
     Load the model once, time inference on its own, repeat, and take the median. All times in this talk are CPU times on a shared VM, and none of them is a benchmark.
+- id: b-cavandoli
+  title: 'Backup: grazie, Cava'
+  time: 0
+  backup: true
+  cue:
+  - The whole design is a tribute to Osvaldo Cavandoli and La Linea.
+  notes: |
+    If someone asks about the look of the slides, or at the very end: the whole design is a tribute to Osvaldo Cavandoli, Cava, and his La Linea. Grazie, Cava.

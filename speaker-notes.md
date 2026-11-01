@@ -2,7 +2,7 @@
 
 RustLab 2026, Bologna. 2 November 2026, 11:30, 45 minute slot.
 
-Planned: 39:50 over 46 slides. Skippable: 4:50 (marked SKIP). Backup slides after the end, for questions only: 3 (marked BACKUP).
+Planned: 40:00 over 47 slides. Skippable: 4:50 (marked SKIP). Backup slides after the end, for questions only: 4 (marked BACKUP).
 
 ## Running order
 
@@ -46,17 +46,19 @@ Planned: 39:50 over 46 slides. Skippable: 4:50 (marked SKIP). Backup slides afte
 | 36 | 2 · Training on the device | 1:15 | 30:35 |  |
 | 37 | Two things std would have given | 1:00 | 31:35 | SKIP |
 | 38 | 3 · Audio: teach it words | 1:30 | 33:05 |  |
-| 39 | 4 · Someone else's model, straight from flash | 1:30 | 34:35 |  |
-| 40 | What it took | 1:00 | 35:35 | SKIP |
-| 41 | Try it now, on your phone | 1:00 | 36:35 |  |
-| 42 | 06 Choosing | 0:10 | 36:45 |  |
-| 43 | Which one? | 1:30 | 38:15 |  |
-| 44 | Three things I take home | 0:50 | 39:05 |  |
-| 45 | Try it | 0:30 | 39:35 |  |
-| 46 | Grazie mille | 0:15 | 39:50 |  |
-| 47 | Backup: three ways a model comes in | | | BACKUP |
-| 48 | Backup: quantization | | | BACKUP |
-| 49 | Backup: timing GPU code | | | BACKUP |
+| 39 | 4 · Someone else's model, straight from flash | 1:15 | 34:20 |  |
+| 40 | The same model on a real chip | 0:25 | 34:45 |  |
+| 41 | What it took | 1:00 | 35:45 | SKIP |
+| 42 | Try it now, on your phone | 1:00 | 36:45 |  |
+| 43 | 06 Choosing | 0:10 | 36:55 |  |
+| 44 | Which one? | 1:30 | 38:25 |  |
+| 45 | Three things I take home | 0:50 | 39:15 |  |
+| 46 | Try it | 0:30 | 39:45 |  |
+| 47 | Grazie mille | 0:15 | 40:00 |  |
+| 48 | Backup: three ways a model comes in | | | BACKUP |
+| 49 | Backup: quantization | | | BACKUP |
+| 50 | Backup: timing GPU code | | | BACKUP |
+| 51 | Backup: grazie, Cava | | | BACKUP |
 
 ## 1. Burn, little candle, burn!
 
@@ -175,7 +177,7 @@ Candle and Burn both do all four. Where they differ is which job they consider t
 
 - Hugging Face, first release August 2023, now 0.11.
 - Inference first: serverless, no Python in production.
-- 100 models in candle-transformers (+22 quantized).
+- candle-transformers: a model zoo, many also quantized.
 
 **Notes**
 
@@ -185,7 +187,7 @@ Their own description is "minimalist ML framework with a focus on performance an
 
 The API feels like PyTorch. Shapes are runtime values, and operations that can fail return a Result.
 
-The big asset is candle-transformers: in 0.11 I counted 100 model implementations, plus 22 quantized variants that load llama.cpp GGUF files. Llama, Mistral, Qwen, Gemma, Whisper, Stable Diffusion, and many more.
+The big asset is candle-transformers: in 0.11.0 I counted 100 model implementations, plus 22 quantized variants that load llama.cpp GGUF files. Llama, Mistral, Qwen, Gemma, Whisper, Stable Diffusion, and many more.
 
 Backends: CPU, with MKL or Apple Accelerate as options; CUDA; Metal; and WebAssembly.
 
@@ -556,7 +558,7 @@ Then you blame the weights: autodiff computes the gradient, how much the loss ch
 
 Then you adjust: move every weight a small step against its gradient. The size of the step is the learning rate. The optimizer we use, Adam, is a smarter version of this step: it keeps running averages per weight.
 
-Repeat until the loss stops falling. This is the simplest form. Every training run in this talk follows this loop, with Adam, and the two classifiers with cross-entropy as the loss.
+Repeat until the loss stops falling. This is the simplest form. Every training run in this talk follows this loop, using Adam instead of the plain step; the two classifiers use cross-entropy instead of squared error.
 
 > **Q:** And the pretrained models?  
 > **A:** Others trained them with the same loop, at a far larger scale. We only run them.
@@ -645,7 +647,7 @@ If you know PyTorch: there is no zero_grad. The gradients are a value you pass i
 
 **Notes**
 
-And here is the answer: the loss after every 250 updates, Candle on the left, Burn on the right. The 2000 row is one more check after the loop.
+And here is the answer: the loss after every 250 updates, Candle on the left, Burn on the right. The 2 000 row is one more check after the loop.
 
 From row 250 on, the printed numbers are identical to six decimals. In the first row they differ in the last digit. That is floating point: most likely Burn's SIMD code adds in a different order, and a different order rounds differently.
 
@@ -729,7 +731,7 @@ Step one: inference. This is a smaller sine model of its own, not the one from p
 
 The one trap: Burnpack wants its data aligned to 256 bytes, and include_bytes guarantees one. Hence the little wrapper struct.
 
-The file is 2 564 bytes; the 321 weights themselves, as f32, are 1 284 of them. A few microseconds per inference on the desktop, and the largest error at 25 test points is 0.02. On the emulated Cortex-M33 the heap peaks under 8 KiB. The training program, also without std, reproduces this file byte for byte.
+The file is 2 564 bytes; the 321 weights themselves, as f32, are 1 284 of them; the rest is the header and padding, because Burnpack starts every tensor on a 256-byte boundary. A few microseconds per inference on the desktop, and the largest error at 25 test points is 0.02. On the emulated Cortex-M33 the heap peaks under 8 KiB. The training program, also without std, reproduces this file byte for byte.
 
 ## 36. 2 · Training on the device
 
@@ -798,7 +800,7 @@ Training on 20 recordings takes a fraction of a second on the desktop. Then it h
 
 ## 39. 4 · Someone else's model, straight from flash
 
-*1:30 · at 34:35*
+*1:15 · at 34:20*
 
 **Cues**
 
@@ -807,7 +809,6 @@ Training on 20 recordings takes a fraction of a second on the desktop. Then it h
 - 1.1 MB of f32 weights; heap peak 180 KiB, 160 of it KV cache.
 - Context 128 of 512: at 512 the KV cache alone is 640 KiB.
 - Same text as run.c at temperature 0.
-- Real RP2350 board: 4.3 tokens/s, same text as QEMU.
 
 **Notes**
 
@@ -819,14 +820,28 @@ That cache holds 128 positions. The model was trained with 512, and at 512 the K
 
 At temperature zero the text is the same as from llama2.c's own C program, run.c: this prompt, 80 steps, compared as text. You saw that story on the second slide.
 
-On a real RP2350 board it writes the same stories as in QEMU, at 4.3 tokens per second.
-
 > **Q:** Could it run a bigger model?  
 > **A:** The desktop program takes other llama2.c files too; I only ran this one. The next size up, stories15M, has about 60 MB of f32 weights, far beyond a Pico 2, even with PSRAM.
 
-## 40. What it took
+## 40. The same model on a real chip
 
-*1:00 · at 35:35 · SKIP*
+*0:25 · at 34:45*
+
+**Cues**
+
+- Waveshare board, RP2350B: the Pico 2's chip, 150 MHz, 520 KiB.
+- 4.3 tokens/s; same four stories as QEMU.
+- Slow, not profiled.
+
+**Notes**
+
+And here it is on a real chip: a Waveshare board with an RP2350, the chip of the Pico 2, at 150 megahertz with 520 KiB of RAM. Four point three tokens per second, and the same stories, word for word, as in QEMU.
+
+That is slow. I have not profiled it yet; every token reads all the weights from flash.
+
+## 41. What it took
+
+*1:00 · at 35:45 · SKIP*
 
 **Cues**
 
@@ -842,9 +857,9 @@ In the no_std desktop and WebAssembly binaries, web-time and wasm-bindgen-future
 
 None of it needed a fork of Burn. The first three are worth upstream issues.
 
-## 41. Try it now, on your phone
+## 42. Try it now, on your phone
 
-*1:00 · at 36:35*
+*1:00 · at 36:45*
 
 **Cues**
 
@@ -860,9 +875,9 @@ On the laptop I'll show the keywords page: use the sample voice, train, play the
 
 If the network or the audio fails: cargo web serves the four pages offline from the repository, and there are videos of all four.
 
-## 42. 06 Choosing
+## 43. 06 Choosing
 
-*0:10 · at 36:45*
+*0:10 · at 36:55*
 
 **Cues**
 
@@ -872,9 +887,9 @@ If the network or the audio fails: cargo web serves the four pages offline from 
 
 So, which one should you use?
 
-## 43. Which one?
+## 44. Which one?
 
-*1:30 · at 38:15*
+*1:30 · at 38:25*
 
 **Cues**
 
@@ -904,14 +919,14 @@ And you can use both: weights move between them through safetensors, as long as 
 > **Q:** How do I benchmark this on a GPU?  
 > **A:** Warm up first, because Burn's GPU backends autotune their kernels on the first calls. GPU work runs in the background, so wait for it before you stop the clock, with `device.synchronize()` in Candle or `device.sync()` in Burn, or use Burn's `device.profile`. Backup slide, Timing GPU code.
 
-## 44. Three things I take home
+## 45. Three things I take home
 
-*0:50 · at 39:05*
+*0:50 · at 39:15*
 
 **Cues**
 
 - 1 Candle: batteries included.
-- 2 Burn goes all the way down: laptop to emulated M33.
+- 2 Burn goes all the way down: desktop, emulated M33, real RP2350.
 - 3 They agree: six decimals from step 250 on.
 
 **Notes**
@@ -920,13 +935,13 @@ Three things I take home.
 
 One: Candle is batteries included. A model from the Hub is a download and a few lines, and the code you write is the code around the model.
 
-Two: Burn goes all the way down. The same Module trains on a laptop and on an emulated Cortex-M33 with 520 KiB of RAM.
+Two: Burn goes all the way down. The same no_std crates train on a desktop and on an emulated Cortex-M33 in 520 KiB of RAM, and the language model runs on a real RP2350.
 
 Three: given the same start and the same data, they agree: the printed losses match to six decimals from step 250 on.
 
-## 45. Try it
+## 46. Try it
 
-*0:30 · at 39:35*
+*0:30 · at 39:45*
 
 **Cues**
 
@@ -939,9 +954,9 @@ Everything is in two places. The talk repository has the slides, these notes, th
 
 (Pause for the QR codes.)
 
-## 46. Grazie mille
+## 47. Grazie mille
 
-*0:15 · at 39:50*
+*0:15 · at 40:00*
 
 **Cues**
 
@@ -958,7 +973,7 @@ Backup answers are in the notes of the Burn 0.22 slide (why the change), the sin
 
 Three backup slides follow this one, for questions only: how a model comes in, quantization, and timing GPU code.
 
-## 47. Backup: three ways a model comes in
+## 48. Backup: three ways a model comes in
 
 *BACKUP · for questions*
 
@@ -981,7 +996,7 @@ Tokenizer, image preprocessing, pooling, the chat template and sampling stay in 
 
 And loading is where checking starts: TinyStories gave the same text as llama2.c, and the MiniLM numbers agree with ONNX Runtime to better than a millionth.
 
-## 48. Backup: quantization
+## 49. Backup: quantization
 
 *BACKUP · for questions*
 
@@ -1001,7 +1016,7 @@ Burn 0.22, according to its book: post-training quantization only, no quantizati
 
 So a smaller file is not automatically a faster model: that depends on the kernel. I did not compare quantized and unquantized speed in either framework.
 
-## 49. Backup: timing GPU code
+## 50. Backup: timing GPU code
 
 *BACKUP · for questions*
 
@@ -1021,3 +1036,15 @@ GPU work is queued and runs in the background, so a timer around a call can stop
 Burn also has `device.profile`, which measures device time. Its fusion backend holds the last operations of a closure back to batch them, so end the closure with a read.
 
 Load the model once, time inference on its own, repeat, and take the median. All times in this talk are CPU times on a shared VM, and none of them is a benchmark.
+
+## 51. Backup: grazie, Cava
+
+*BACKUP · for questions*
+
+**Cues**
+
+- The whole design is a tribute to Osvaldo Cavandoli and La Linea.
+
+**Notes**
+
+If someone asks about the look of the slides, or at the very end: the whole design is a tribute to Osvaldo Cavandoli, Cava, and his La Linea. Grazie, Cava.
