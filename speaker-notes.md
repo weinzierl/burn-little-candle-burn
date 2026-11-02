@@ -9,7 +9,7 @@ Planned: 40:00 over 47 slides. Skippable: 4:50 (marked SKIP). Backup slides afte
 | # | Slide | Time | At | |
 |---:|---|---:|---:|---|
 | 1 | Burn, little candle, burn! | 0:30 | 0:30 |  |
-| 2 | Two ends of one scale | 1:00 | 1:30 |  |
+| 2 | Two ends of this talk | 1:00 | 1:30 |  |
 | 3 | Ludwig Weinzierl | 0:40 | 2:10 |  |
 | 4 | What does it take to do ML in Rust? | 0:40 | 2:50 |  |
 | 5 | 01 Two frameworks | 0:10 | 3:00 |  |
@@ -44,7 +44,7 @@ Planned: 40:00 over 47 slides. Skippable: 4:50 (marked SKIP). Backup slides afte
 | 34 | Four steps, one no_std crate each | 1:00 | 28:05 |  |
 | 35 | 1 · Inference: the weights stay in flash | 1:15 | 29:20 |  |
 | 36 | 2 · Training on the device | 1:15 | 30:35 |  |
-| 37 | Two things std would have given | 1:00 | 31:35 | SKIP |
+| 37 | Without std: our own Adam, batch size 1 | 1:00 | 31:35 | SKIP |
 | 38 | 3 · Audio: teach it words | 1:30 | 33:05 |  |
 | 39 | 4 · Someone else's model, straight from flash | 1:15 | 34:20 |  |
 | 40 | The same model on a real chip | 0:25 | 34:45 |  |
@@ -58,7 +58,7 @@ Planned: 40:00 over 47 slides. Skippable: 4:50 (marked SKIP). Backup slides afte
 | 48 | Backup: three ways a model comes in | | | BACKUP |
 | 49 | Backup: quantization | | | BACKUP |
 | 50 | Backup: timing GPU code | | | BACKUP |
-| 51 | Backup: grazie, Cava | | | BACKUP |
+| 51 | Backup: Osvaldo Cavandoli | | | BACKUP |
 
 ## 1. Burn, little candle, burn!
 
@@ -75,7 +75,7 @@ Good morning. I'm Ludwig. This talk is about the two machine learning frameworks
 
 Everything you will see today is code that ran while I prepared this talk. The code on the slides is cut from the real files, and every output is captured, not typed. Where something only compiled, or ran in an emulator, the slide says so.
 
-## 2. Two ends of one scale
+## 2. Two ends of this talk
 
 *1:00 · at 1:30*
 
@@ -89,12 +89,15 @@ Everything you will see today is code that ran while I prepared this talk. The c
 
 Two outputs to start with. On the left, a chat model with 360 million parameters, 386 megabytes, running in Candle on two CPU cores. I asked it what a tensor is.
 
-On the right, a language model with 260 thousand parameters, one megabyte of f32 weights, running in Burn without the standard library. It runs on a real RP2350, the chip of the Raspberry Pi Pico 2, with 520 KiB of RAM, at about four tokens per second. In QEMU, on an emulated Cortex-M33 with the same memory limit, it writes exactly the same text.
+On the right, a language model with 260 thousand parameters, one megabyte of f32 weights, running in Burn without the standard library. It runs on a real RP2350, the chip of the Raspberry Pi Pico 2, with the weights in flash and 520 KiB of RAM, at about four tokens per second. In QEMU, on an emulated Cortex-M33 with the same memory limit, it writes exactly the same text.
 
 Same language, same idea, three orders of magnitude apart. This talk is about what sits between these two ends.
 
 > **Q:** Did the right side run on a real Pico 2?  
 > **A:** On its chip. A Waveshare board with an RP2350B, the Pico 2's chip with more pins, at 4.3 tokens per second, with the same text as in QEMU, over USB and on the board's screen. Steps one to three ran in QEMU only.
+
+> **Q:** So Candle is for big models and Burn for small ones?  
+> **A:** These are the ends of this talk, not of the frameworks. Burn runs big models too; I have run bigger ones in it. What Candle cannot do is leave std. Its build for the Pico's target stops at getrandom.
 
 ## 3. Ludwig Weinzierl
 
@@ -123,15 +126,18 @@ You will meet MiniLM again in a few minutes.
 - Three answers, three parts.
 - 1 someone else's model: Candle and the Hub.
 - 2 one model in both: sin(x).
-- 3 without std: Burn on an emulated microcontroller.
+- 3 without std: Burn on a microcontroller.
 
 **Notes**
 
 My question for this talk: what does it take to do machine learning in Rust?
 
-I'll answer it three times. First, use someone else's model: an image classifier, a sentence model and a small chat model, with Candle and the Hugging Face Hub. Second, train one model in both frameworks from the same start, and check whether they agree. Third, leave the standard library behind: Burn on an emulated microcontroller, from a sine wave to a language model.
+I'll answer it three times. First, use someone else's model: an image classifier, a sentence model and a small chat model, with Candle and the Hugging Face Hub. Second, train one model in both frameworks from the same start, and check whether they agree. Third, leave the standard library behind: Burn on a microcontroller, from a sine wave to a language model.
 
 Before that, who these two are, and what a tensor looks like in each.
+
+> **Q:** The abstract promised a comparable model in each framework.  
+> **A:** That is part two, sin(x), trained in both from the same start. One Hub model loaded in both frameworks is not in this talk.
 
 ## 5. 01 Two frameworks
 
@@ -221,7 +227,10 @@ The GPU backends sit on CubeCL, Tracel's compute language: CUDA, ROCm, Metal, Vu
 For existing models, Burn imports ONNX by generating Rust code from it, and it loads PyTorch and safetensors weights.
 
 > **Q:** Is Burn stable?  
-> **A:** The README says it is in active development and there will be breaking changes. The next slide shows a big one from three weeks ago.
+> **A:** The README says it is in active development and there will be breaking changes. The next slide shows a big one from almost four weeks ago.
+
+> **Q:** Which Burn version ran?  
+> **A:** 0.22.1 for the sine comparison in code, 0.22.0 for burn-nostd. The quote on the slide is the README's current tagline; the 0.22.0 README said the same in more words.
 
 ## 9. Burn 0.22 moved the backend
 
@@ -229,7 +238,7 @@ For existing models, Burn imports ONNX by generating Rust code from it, and it l
 
 **Cues**
 
-- Three weeks ago: 0.22, 6 October.
+- Almost four weeks ago: 0.22, 6 October.
 - Left: backend as type parameter B. Right: runtime Device.
 - Candle backend removed. Rank stays in the type.
 
@@ -237,7 +246,7 @@ For existing models, Burn imports ONNX by generating Rust code from it, and it l
 
 If you looked at Burn before October, you saw code like the left side. Every model and every tensor carried a type parameter B for the backend, and you picked the backend with a type alias at the top of your program.
 
-Burn 0.22 was released on 6 October, three weeks ago, and it removed that parameter. A tensor is now `Tensor<2>`, a model is just `Model`, and the backend is a runtime value: you create a Device, and you ask for autodiff on that device.
+Burn 0.22 was released on 6 October, almost four weeks ago, and it removed that parameter. A tensor is now `Tensor<2>`, a model is just `Model`, and the backend is a runtime value: you create a Device, and you ask for autodiff on that device.
 
 Two more changes from the migration guide: the Candle backend is gone, and the NdArray and LibTorch backends are deprecated. Yes, Burn could run on top of Candle until 0.21.
 
@@ -501,7 +510,7 @@ The model returns a score for every possible next token, the sampler picks one, 
 
 **Notes**
 
-The chat template is plain text, with markers the model saw during fine-tuning. Get it wrong and the model still talks, but it no longer answers.
+The chat format is plain text, with markers the model saw during fine-tuning. Get it wrong and the model still talks, but it no longer answers. My prompt has no system turn; the template on the Hub would add a default one.
 
 The answer: one sentence, as asked. The speed on the slide is two CPU cores of a cloud VM. On a Mac, Metal is one cargo feature away; I did not measure that.
 
@@ -750,9 +759,9 @@ Step two: training on the device. Learner is a small helper of this demo, not Bu
 
 On the desktop that takes milliseconds, and the network gets all 100 new windows right. They come from the same synthetic generator as the training windows, so this shows that training works, not how well it would do on real motion. On the emulated Cortex-M33 the heap peaks at 41 KiB during training.
 
-On the Pico 2 the examples would come from an IMU and a button. That firmware builds; I have not run it on a board yet.
+In the Pico 2 firmware the examples come from an IMU on I²C and a button. That firmware builds; I have not run it on a board yet.
 
-## 37. Two things std would have given
+## 37. Without std: our own Adam, batch size 1
 
 *1:00 · at 31:35 · SKIP*
 
@@ -765,7 +774,7 @@ On the Pico 2 the examples would come from an IMU and a button. That firmware bu
 
 **Notes**
 
-Inside train, one example at a time: forward, loss, backward, and an optimizer step. Two things std would have given me were missing.
+Inside train, one example at a time: forward, loss, backward, and an optimizer step. Without std, two things were missing: an optimizer crate that compiles, and the cache sizes.
 
 First the optimizer. burn-optim 0.22.0 is marked no_std, but without std it does not compile for the Pico's target: six errors, a module that only exists with std and missing imports. So adam is a small crate of its own, 78 lines: a ModuleMapper that walks the parameters and updates each one.
 
@@ -823,6 +832,9 @@ At temperature zero the text is the same as from llama2.c's own C program, run.c
 > **Q:** Could it run a bigger model?  
 > **A:** The desktop program takes other llama2.c files too; I only ran this one. The next size up, stories15M, has about 60 MB of f32 weights, far beyond a Pico 2, even with PSRAM.
 
+> **Q:** Is the KV cache a Burn tensor?  
+> **A:** No. The weight matrices are Burn tensors that borrow flash, and the projections run on them. After that, RoPE, attention and the KV cache work on plain f32 slices, which saves a tensor dispatch per head.
+
 ## 40. The same model on a real chip
 
 *0:25 · at 34:45*
@@ -830,14 +842,20 @@ At temperature zero the text is the same as from llama2.c's own C program, run.c
 **Cues**
 
 - Waveshare board, RP2350B: the Pico 2's chip, 150 MHz, 520 KiB.
-- 4.3 tokens/s; same four stories as QEMU.
+- 4.3 tokens/s over USB; the first four stories as in QEMU. Screen: 4.2, it drops the second decimal.
 - Slow, not profiled.
 
 **Notes**
 
-And here it is on a real chip: a Waveshare board with an RP2350, the chip of the Pico 2, at 150 megahertz with 520 KiB of RAM. Four point three tokens per second, and the same stories, word for word, as in QEMU.
+And here it is on a real chip: a Waveshare board with an RP2350, the chip of the Pico 2, at 150 megahertz with 520 KiB of RAM. Four point three tokens per second, and the first four stories match QEMU word for word.
 
 That is slow. I have not profiled it yet; every token reads all the weights from flash.
+
+> **Q:** Why does the screen in the photo say 4.2?  
+> **A:** It drops the second decimal, so 4.29 shows as 4.2. The 4.3 on the slide comes from the USB log, 124 tokens in 28.51 seconds.
+
+> **Q:** Is the story in the photo one of the QEMU stories?  
+> **A:** No. The screen version starts every story with a new seed, so story 11 is new. The comparison with QEMU is the first four stories of the USB version, and those are the same, word for word.
 
 ## 41. What it took
 
@@ -971,7 +989,7 @@ Grazie mille, thank you very much. I'm happy to take questions. The QR code on t
 
 Backup answers are in the notes of the Burn 0.22 slide (why the change), the sine result (performance), Four steps (the real board), Training on the device (hardware status), Someone else's model (bigger models) and Which one (using both).
 
-Three backup slides follow this one, for questions only: how a model comes in, quantization, and timing GPU code.
+Four backup slides follow this one: three for questions (how a model comes in, quantization, timing GPU code) and one on the design.
 
 ## 48. Backup: three ways a model comes in
 
@@ -1037,7 +1055,7 @@ Burn also has `device.profile`, which measures device time. Its fusion backend h
 
 Load the model once, time inference on its own, repeat, and take the median. All times in this talk are CPU times on a shared VM, and none of them is a benchmark.
 
-## 51. Backup: grazie, Cava
+## 51. Backup: Osvaldo Cavandoli
 
 *BACKUP · for questions*
 
@@ -1047,4 +1065,4 @@ Load the model once, time inference on its own, repeat, and take the median. All
 
 **Notes**
 
-If someone asks about the look of the slides, or at the very end: the whole design is a tribute to Osvaldo Cavandoli, Cava, and his La Linea. Grazie, Cava.
+If someone asks about the look of the slides, or at the very end: the whole design is a tribute to Osvaldo Cavandoli, Cava, and his La Linea.

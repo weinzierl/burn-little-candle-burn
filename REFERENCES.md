@@ -130,3 +130,12 @@ Checked on 2026-10-31.
 - `seventies`: Ludwig Weinzierl's Typst slide kit (1970s Swiss, full-bleed flat colour, one continuous line), used for colours, the line, the candle and the code colours (`slides/code.tmTheme` is the kit's `seventies.tmTheme`).
 - The line after Osvaldo Cavandoli's *La Linea* (1971), as an homage; no drawing from the series is reproduced.
 - English Wikipedia, "Osvaldo Cavandoli" (read 2026-11-01), for backup slide 51: 1 January 1920 to 3 March 2007, pen name Cava. The still from La Linea on that slide comes from Ludwig.
+
+## Checked on 2 November 2026 (second round of review)
+
+- Burn README, `main` branch (raw.githubusercontent.com/tracel-ai/burn/main/README.md): the tagline "A tensor library and deep learning framework for numerical computing, training and inference." The `v0.22.0` README: "Burn is both a tensor library and a deep learning framework, optimized for numerical computing, training and inference".
+- SmolLM2-360M-Instruct `tokenizer_config.json` (huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct): the chat template adds `<|im_start|>system\nYou are a helpful AI assistant named SmolLM, trained by Hugging Face<|im_end|>` when the first message is not a system message.
+- Burn Book, `migrating-to-0.22.md` at `v0.22.0`: "NdArray and LibTorch are deprecated, the Candle backend is removed"; the Cargo features `candle`, `candle-cuda`, `candle-metal`: removed. Tracel's release post (tracel.ai/blog/release-0.22.0, 6 October 2026): "Candle has been removed, while NdArray and LibTorch are deprecated." Neither gives a reason.
+- `burn-candle` on lib.rs: "It is still in alpha stage, not all operations are supported."
+- Rust project goals update, April 2026 (blog.rust-lang.org, 18 May 2026): `std::autodiff` "is now partly in CI"; users "can now download libEnzyme artifacts, place them locally in the right spot for their toolchain, and then use autodiff on their nightly compiler"; a rustup component is planned once macOS is supported.
+- `burn-nostd/pico2/src/bin/tinystories-lcd/main.rs`: the status line computes tenths as `tokens * 10_000 / model_ms` (integer division) and seeds story `round` with `round + 1`.

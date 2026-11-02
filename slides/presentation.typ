@@ -129,7 +129,7 @@
 
 #slide(
   id: "hook",
-  title: [Two ends of one scale],
+  title: [Two ends of this talk],
   tag: "captured output · both ran during preparation",
 )[
   #grid(
@@ -138,10 +138,10 @@
     hook-col("Candle · CPU, 2 cores", [#mbr(model-size("smollm2-360m-instruct-q8_0.gguf")) MB],
       [SmolLM2-360M-Instruct, 8-bit], prose-out(read(cbo + "/ask.txt").trim(), size: 18pt)),
     hook-col("Burn · no_std · RP2350 board", [#mb1(t-bytes) MB],
-      [TinyStories 260K, f32, in 520 KiB of RAM], prose-out(story-start, size: 18pt)),
+      [TinyStories 260K, f32, weights in flash], prose-out(story-start, size: 18pt)),
   )
   #v(1fr)
-  #note[Sizes of the weight files. Left: Candle 0.11 on a 2-core Linux VM. Right: Burn 0.22 without std on a Waveshare RP2350 board, #b-rate tokens/s; the same text in QEMU (mps2-an505) with RAM limited to 520 KiB.]
+  #note[Sizes of the weight files. Left: Candle 0.11 on a 2-core Linux VM. Right: Burn 0.22 without std on a Waveshare RP2350 board, 520 KiB of RAM, #b-rate tokens/s; the same text in QEMU (mps2-an505) with the same RAM.]
 ]
 
 #slide(id: "me", title: [Ludwig Weinzierl])[
@@ -174,7 +174,7 @@
     text(font: fonts.head, weight: 700, size: 44pt, fill: c.accent)[2],
     [*Train one model in both* \ #text(fill: c.grey)[sin(x), from the same start]],
     text(font: fonts.head, weight: 700, size: 44pt, fill: c.accent)[3],
-    [*Leave std behind* \ #text(fill: c.grey)[Burn on an emulated microcontroller, from sin(x) to a language model]],
+    [*Leave std behind* \ #text(fill: c.grey)[Burn on a microcontroller, from sin(x) to a language model]],
   )
   #v(1fr)
   #note[Everything shown ran during preparation, on the platform each slide names.]
@@ -212,13 +212,13 @@
   #text(size: 24pt, fill: c.grey)[“Minimalist ML framework for Rust with a focus on performance (including GPU support) and ease of use.”]
   #v(12pt)
   - PyTorch-like API: runtime shapes, errors as `Result`
-  - Goal: serverless inference, Python out of production
-  - `candle-transformers`: a model zoo, many also quantized (GGUF)
+  - Goals: serverless inference, no Python in production
+  - `candle-transformers`: a model zoo, some of them quantized (GGUF)
   - CPU (MKL, Accelerate), CUDA, Metal, WebAssembly
 ]
 
 #slide(id: "burn", title: [Burn], tag: "Tracel AI · since 2022 · 0.22")[
-  #text(size: 24pt, fill: c.grey)[“Burn is both a tensor library and a deep learning framework, optimized for numerical computing, training and inference.”]
+  #text(size: 24pt, fill: c.grey)[“A tensor library and deep learning framework for numerical computing, training and inference.”]
   #v(12pt)
   - Training built in: optimizers, `Learner`, terminal dashboard
   - CubeCL backends: CUDA, ROCm, Metal, Vulkan, WebGPU, CPU, with kernel fusion
@@ -312,7 +312,7 @@
     ),
     [rank], [value], [type: `Tensor<2>`],
     [shape], [value], [value],
-    [element type], [value: `DType::F32`], [kind in the type (`Int`), width a value],
+    [element type], [value: `DType::F32`], [kind in the type (`Int`); width is a value],
     [device], [value: `Device::Cpu`], [value: `Device::flex()`],
     [shape error], [`Err(…)`], [panic],
     [operations], [borrow: `&self`], [move: `self`, cheap clone],
@@ -363,7 +363,7 @@
   #v(8pt)
   #code(cut(cb + "/3-similar/src/main.rs", "// Unit vectors", "let scores ="), size: 20pt, label: "compare")
   #v(1fr)
-  #note[The model returns one vector per token. Averaging them into one vector per sentence, and making it length 1, is the part you write. Count the padding and it still compiles and runs: correct Rust, wrong embeddings.]
+  #note[The model returns one vector per token. Averaging them into one vector per sentence, and making it length 1, is the part you write. If you count the padding, it still compiles and runs: correct Rust, wrong embeddings.]
 ]
 
 // Scores as printed by `similar`, for the slide: a real minus sign, no "-0.00",
@@ -392,20 +392,20 @@
   #note[Cosine similarity: 1 means the same direction. The tortellini sentence shares no word with its question. The router question still gets a top sentence: nearest is not relevant.]
 ]
 
-#slide(id: "ask", title: [A chat: SmolLM2, one token at a time], tag: "Candle 0.11 · quantized LLaMA · GGUF")[
+#slide(id: "ask", title: [A chat: SmolLM2, one token at a time], tag: "Candle 0.11 · Llama architecture · GGUF")[
   #code(cut-n(cb + "/4-ask/src/main.rs", "for _ in 0..256", 14), size: 18pt)
   #v(1fr)
   #note[`pos` tells the model how much it has already seen: the KV cache inside `ModelWeights` keeps the rest. The prompt goes in once, then one token per step.]
 ]
 
 #slide(id: "ask-out", title: [What it answers], tag: "Candle 0.11 · CPU, 2 cores · ran on Linux x86-64")[
-  #code(cut(cb + "/4-ask/src/main.rs", "let prompt = format!(", ");"), size: 19pt, label: "the chat template is plain text")
+  #code(cut(cb + "/4-ask/src/main.rs", "let prompt = format!(", ");"), size: 19pt, label: "the chat format is plain text")
   #v(8pt)
   #prose-out(read(cbo + "/ask.txt").trim(), size: 21pt, label: "cargo ask")
   #v(6pt)
   #text(size: 22pt)[#ask-tokens tokens, #ask-rate tokens/s on 2 CPU cores, 8-bit weights.]
   #v(1fr)
-  #note[Sampling: top-p 0.9, temperature 0.5, seed 42. Same seed, same answer on this machine. \ Metal and CUDA are cargo features.]
+  #note[Sampling: top-p 0.9, temperature 0.5, seed 42. Same seed, same answer on this machine. \ No system turn: the template on the Hub would add a default one. Metal and CUDA are cargo features.]
 ]
 
 #slide(id: "you-write", title: [What Candle gives you, what you write], tag: "concept")[
@@ -598,7 +598,7 @@
 )[
   #text(size: 21pt)[Each runs without std: on the desktop, as zero-import WebAssembly, and on an emulated Cortex-M33 limited to the Pico 2’s 520 KiB of RAM, 256 KiB of it heap. Step 4 also ran on a real RP2350 board: same text, #b-rate tokens/s.]
   #v(2pt)
-  #note[Candle is not in this part: it needs std. Its build for `thumbv8m.main-none-eabihf` stops at `getrandom`.]
+  #note[Candle is not in this part: it needs std. Its build for `thumbv8m` stops at `getrandom`.]
   #let steps = (
     ("1", [Inference], [weights stay in flash], [321 parameters]),
     ("2", [Training], [autodiff on the device], [#num(1316) parameters]),
@@ -646,10 +646,10 @@
     fact[#kib(q-g-heap) KiB][heap peak, training, emulated M33],
   )
   #v(4pt)
-  #note[`Learner` is the demo’s own helper. Training and test windows come from one synthetic generator, as on the browser page. On the Pico 2 an IMU and a button would supply them: built, not yet run.]
+  #note[`Learner` is the demo’s own helper. Training and test windows come from one synthetic generator, as on the browser page. In the Pico 2 firmware an IMU on I²C and a button supply them: built, not yet run.]
 ]
 
-#slide(id: "step2-adam", title: [Two things std would have given], tag: "Burn no_std · checked against the crates’ sources")[
+#slide(id: "step2-adam", title: [Without std: our own Adam, batch size 1], tag: "Burn no_std · checked against the crates’ sources")[
   #code(cut(bn + "/2-gesture/src/lib.rs", "let loss = loss_fn.forward", "self.net = self.adam.step"), size: 18pt, wrap: 74, label: "inside train(): one example at a time")
   #v(8pt)
   - `burn-optim` 0.22.0 does not compile without std (6 errors, thumbv8m). Our `adam` is #num(adam-lines) lines: a `ModuleMapper` that updates each parameter.
@@ -694,7 +694,7 @@
   #note[Only the last box learns. The voice is synthetic (espeak-ng), not a person: real microphones are untested.]
 ]
 
-#slide(id: "step4", title: [4 · Someone else's model, straight from flash], tag: "Burn no_std · TinyStories 260K · own Llama code on Burn tensors")[
+#slide(id: "step4", title: [4 · Someone else's model, straight from flash], tag: "Burn no_std · TinyStories 260K · own Llama code, weights as Burn tensors")[
   #code(cut(bn + "/4-tinystories/src/lib.rs", "let bytes = bytes::Bytes::from_static", "Tensor::<2>::from_data"), size: 18pt, wrap: 74, label: "every weight tensor borrows the checkpoint")
   #v(1fr)
   #facts(
@@ -713,15 +713,15 @@
     align: (left + top, left + top),
     box(stroke: 0.6pt + c.rule, image("media/board-tinystories.jpg", height: 285pt)),
     [
-      #fact[#b-rate][tokens per second: #b-tokens tokens in #str(calc.round(b-ms / 1000, digits: 1)) s]
+      #fact[#b-rate][tokens per second: #b-tokens tokens in #str(calc.round(b-ms / 1000, digits: 2)) s over USB]
       #v(12pt)
-      #fact[same text][as in QEMU, all four stories]
+      #fact[same text][as in QEMU, the first four stories]
       #v(12pt)
       #fact[520 KiB][of RAM, no OS, no std]
     ],
   )
   #v(1fr)
-  #note[Photo of 1 November: story 11, temperature 0.8; the screen version takes the four prompts in turn. The numbers come from the USB log of `tinystories-usb`.]
+  #note[Photo of 1 November: story 11, temperature 0.8, with a new seed for each story; the screen shows 4.29 as 4.2. The numbers come from the USB log of `tinystories-usb`.]
 ]
 
 #slide(id: "took", title: [What it took], tag: "Burn no_std · Burn 0.22.0")[
@@ -792,7 +792,7 @@
       [Microcontroller], [Burn], [Flex is `no_std`; Candle needs std],
       [GPUs beyond CUDA, Metal], [Burn], [CubeCL: Vulkan, WebGPU],
       [Import an ONNX model], [Burn], [`burn-onnx` writes Rust],
-      [Move weights between them], [both], [safetensors, same names; adapters],
+      [Move weights between them], [both], [safetensors; burn-store adapters],
     )
   })
 ]
@@ -879,7 +879,7 @@
     column-gutter: 36pt,
     [
       #label-text("Candle · GGUF Q8_0 · our SmolLM2")
-      - 32 weights share one f16 scale: 34~bytes, 8.5~bits a weight.
+      - 32 weights share one f16 scale: 34~bytes, 8.5~bits per weight.
       - #str(calc.round(q8-weights / 1000000, digits: 1)) million weights: #mbr(q8-bytes)~MB of weights (the file: #mbr(model-size("smollm2-360m-instruct-q8_0.gguf"))~MB), not #str(calc.round(all-weights * 4 / 1000000000, digits: 2))~GB as f32.
       - On the CPU the activations are quantized to the same blocks and multiplied as 8-bit integers.
     ],
@@ -906,7 +906,7 @@
   #note[All times in this talk are CPU times from a shared VM: none is a benchmark.]
 ]
 
-#slide(id: "b-cavandoli", title: [Grazie, Cava], tag: "backup · the design of these slides")[
+#slide(id: "b-cavandoli", title: [Osvaldo Cavandoli], tag: "backup · the design of these slides")[
   #grid(
     columns: (auto, 1fr),
     column-gutter: 36pt,
@@ -914,7 +914,7 @@
     image("media/la-linea.jpg", height: 290pt),
     [
       #set text(size: 24pt)
-      The design of these slides is a tribute to *Osvaldo Cavandoli* (1920 to 2007) and his *La Linea*.
+      The design of these slides is a tribute to him (1920 to 2007) and to his *La~Linea*.
       #v(12pt)
       #note[La Linea © Osvaldo Cavandoli]
     ],

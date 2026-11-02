@@ -304,3 +304,20 @@ embedded developers, a few Python ML people, and possibly a Burn or Candle contr
 
 **55. "What about power consumption?"**
 - **Answer:** Not measured; there was no hardware run.
+
+### Asked by Ludwig on the morning of the talk
+
+**56. "What is ONNX?"**
+- **Answer:** Open Neural Network Exchange: an open file format for trained models, started in 2017 by Facebook and Microsoft, now a Linux Foundation project. A file holds the computation graph, made of standard operators with versioned operator sets, and the weights. Any runtime that implements those operators can run it. ONNX Runtime is Microsoft's; `ort` is its Rust binding. Burn's `burn-onnx` turns the graph into Rust source at build time; Candle's `candle-onnx` walks the graph at run time and supports a subset of operators. In this talk: slide 44 ("Import an ONNX model"), backup slide 48, and the MiniLM check against the official ONNX export.
+
+**57. "How does autodiff work in each? Do they use std::autodiff?"**
+- **Answer:** Neither uses the compiler. Both do reverse-mode autodiff in library code at run time. In Candle, every tensor remembers the operation and inputs that made it; trainable weights are `Var`s, and `loss.backward()` walks that graph backwards and returns a store of gradients. In Burn, autodiff is a backend decorator: in 0.22 you ask the device for it (`Device::flex().autodiff()`), it records the operations of the forward pass on a graph, and `loss.backward()` returns the gradients, which `GradientsParams` maps to the module's parameters for the optimizer.
+- **std::autodiff** is different: an experimental nightly feature that differentiates ordinary Rust functions inside the compiler, with Enzyme working on the optimized LLVM IR. It is attractive because it differentiates plain Rust (loops, scalars, structs), not just tensor operations, without recording a graph at run time, and the gradient code is optimized like any other code. It is not used here because it is nightly only (as of the April 2026 Rust project goals update, partly in CI, with Enzyme artifacts placed by hand and no rustup component yet, macOS still missing), and because a framework's work happens in kernels and at run time: GPU kernels through CubeCL, gemm, graphs whose shapes are known only when they run. Burn and Candle target stable Rust.
+- **Don't claim:** that it will never be used; Burn or Candle could adopt it for parts once it is stable.
+
+**58. "Why did Burn 0.22 remove the Candle backend and deprecate NdArray and LibTorch?"**
+- **Answer:** Tracel does not say why. The release post and the migration guide only state it: "Candle has been removed, while NdArray and LibTorch are deprecated." My reading, not theirs: in 0.22 the backend became a runtime device, and their own backends now cover every target. Flex is a pure-Rust CPU backend that also runs in WebAssembly and without std (where NdArray was the usual choice), the CubeCL CPU backend compiles kernels, and the CubeCL GPU backends cover CUDA, ROCm, Metal, Vulkan and WebGPU, so LibTorch, with its big C++ dependency, is no longer needed for GPUs. The Candle backend had been "in alpha stage, not all operations are supported" (its README).
+- **Don't claim:** a reason from Tracel; there is none in writing.
+
+**59. "What is Adam?"**
+- **Answer:** The most common optimizer, from Kingma and Ba (2014): gradient descent with a step size per parameter. It keeps two running averages per weight, of the gradient (momentum) and of the squared gradient, corrects both for their start at zero, and divides the first by the square root of the second: big steps where gradients are small and steady, small steps where they jump. Defaults: β1 0.9, β2 0.999, ε 1e-8. AdamW decouples the weight decay; with weight decay 0 it is Adam, which is why Candle's AdamW and Burn's Adam give the same updates in the sine experiment (slides 29 to 32). Without std, burn-optim did not compile, so `burn-nostd` has its own Adam in 78 lines (slide 37).

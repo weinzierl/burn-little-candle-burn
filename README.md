@@ -15,6 +15,7 @@ presentation-public.pdf   slides, free fonts (built from slides/presentation.typ
 speaker-notes.pdf         notes with slide thumbnails, sized for a phone
 speaker-notes.md          the same notes as Markdown
 questions.md              questions to expect in the Q&A, most likely first, with answers
+MAP.md                    which slide shows which file of this repository
 slides/                   presentation.typ, theme.typ, code theme, QR codes, screenshots,
   media/video/            fallback videos of the four demo pages; board.mp4, the board writing
 notes/                    notes.yaml (single source), speaker-notes.typ
@@ -32,7 +33,7 @@ code/                     part 2 and more: Cargo workspace for the comparisons
 fonts/public/             Jost, IBM Plex Mono, Kumbh Sans (SIL OFL 1.1)
 fonts/private/            place for the licensed Ergonomique files (not in git)
 tools/                    capture script, notes generator, deck/notes consistency check,
-                          GGUF statistics
+                          GGUF statistics, slide map
   minilm-reference/       checks the MiniLM numbers against the official ONNX export
 rehearsal/                a virtual run of the talk for practice: script, five Q&A questions,
                           synthetic voices, video with a clock (its own README)

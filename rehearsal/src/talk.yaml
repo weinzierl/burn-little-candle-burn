@@ -24,7 +24,7 @@
 - id: "02_slide02"
   slide: 2
   key: hook
-  title: "Two ends of one scale"
+  title: "Two ends of this talk"
   target: 52
   text: |
     Let's start with two outputs.
@@ -392,12 +392,12 @@
   text: |
     Step two: training, on the device. This Learner is a small helper of the demo, not Burn's Learner. It collects five synthetic motion windows for each of four gestures: rest, shake, circle and punch. Five examples per gesture is what you'd ask from a user, too. Then it trains for 15 epochs. Burn's autodiff works without std; the device is simply an autodiff device.
     On the desktop, that takes 13 milliseconds, and the network gets all 100 new windows right. But they come from the same synthetic generator as the training windows. So this shows that training works, not how well it would work on real motion.
-    On the emulated Cortex-M33, the heap peaks at 41 KiB during training. On a Pico 2, the examples would come from an IMU and a button. That firmware builds, but I haven't run it on a board.
+    On the emulated Cortex-M33, the heap peaks at 41 KiB during training. In the Pico 2 firmware, the examples come from an IMU and a button. That firmware builds, but I haven't run it on a board.
 
 - id: "37_slide37"
   slide: 37
   key: step2-adam
-  title: "Two things std would have given"
+  title: "Without std: our own Adam, batch size 1"
   target: 52
   skip: true
   text: |

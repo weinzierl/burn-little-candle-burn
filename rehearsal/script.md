@@ -14,7 +14,7 @@ Session plan, 45:00 in total: moderator 0:20, talk 35:00, Q&A 8:00 (5 questions,
 | Slide | Title | Target | Words | Est. | Starts at | Ends at | Flag |
 |---:|---|---:|---:|---:|---:|---:|---|
 | 1 | Burn, little candle, burn! | 26 s | 62 | 28 s | 0:00 | 0:28 |  |
-| 2 | Two ends of one scale | 52 s | 120 | 53 s | 0:28 | 1:21 |  |
+| 2 | Two ends of this talk | 52 s | 120 | 53 s | 0:28 | 1:21 |  |
 | 3 | Ludwig Weinzierl | 35 s | 79 | 35 s | 1:21 | 1:56 | your notes: 121 words for 35 s; the script drops the XGBoost detail |
 | 4 | What does it take to do ML in Rust? | 35 s | 84 | 37 s | 1:56 | 2:33 |  |
 | 5 | 01 Two frameworks | 9 s | 21 | 9 s | 2:33 | 2:43 |  |
@@ -49,7 +49,7 @@ Session plan, 45:00 in total: moderator 0:20, talk 35:00, Q&A 8:00 (5 questions,
 | 34 | Four steps, one #![no_std] crate each | 52 s | 110 | 49 s | 23:34 | 24:23 | your notes: 147 words for 52 s; script shortened |
 | 35 | 1 · Inference: the weights stay in flash | 66 s | 151 | 67 s | 24:23 | 25:30 |  |
 | 36 | 2 · Training on the device | 66 s | 153 | 68 s | 25:30 | 26:38 |  |
-| 37 | Two things std would have given (SKIP) | 52 s | 116 | 52 s | 26:38 | 27:29 |  |
+| 37 | Without std: our own Adam, batch size 1 (SKIP) | 52 s | 116 | 52 s | 26:38 | 27:29 |  |
 | 38 | 3 · Audio: teach it words | 79 s | 183 | 81 s | 27:29 | 28:51 | fullest slide: five boxes and three numbers |
 | 39 | 4 · Someone else's model, straight from flash | 66 s | 152 | 68 s | 28:51 | 29:58 | your notes: 163 words for 66 s; script shortened |
 | 40 | The same model on a real chip | 22 s | 50 | 22 s | 29:58 | 30:20 | add about 10 s if you hand the board over here |
@@ -77,7 +77,7 @@ Good morning, I'm Ludwig. This talk is about Candle and Burn, the two machine le
 
 One promise: everything you'll see ran while I prepared this talk. The code is cut from the real files, and every output is captured, not typed. Where something only compiled, or only ran in an emulator, the slide says so.
 
-## Slide 2 · Two ends of one scale
+## Slide 2 · Two ends of this talk
 
 Target 52 s · 120 words · est. 53 s · talk clock 0:28 to 1:21
 
@@ -455,9 +455,9 @@ Step two: training, on the device. This Learner is a small helper of the demo, n
 
 On the desktop, that takes 13 milliseconds, and the network gets all 100 new windows right. But they come from the same synthetic generator as the training windows. So this shows that training works, not how well it would work on real motion.
 
-On the emulated Cortex-M33, the heap peaks at 41 KiB during training. On a Pico 2, the examples would come from an IMU and a button. That firmware builds, but I haven't run it on a board.
+On the emulated Cortex-M33, the heap peaks at 41 KiB during training. In the Pico 2 firmware, the examples come from an IMU and a button. That firmware builds, but I haven't run it on a board.
 
-## Slide 37 · Two things std would have given (SKIP)
+## Slide 37 · Without std: our own Adam, batch size 1 (SKIP)
 
 Target 52 s · 116 words · est. 52 s · talk clock 26:38 to 27:29
 
