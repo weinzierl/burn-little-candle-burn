@@ -34,6 +34,8 @@ fonts/private/            place for the licensed Ergonomique files (not in git)
 tools/                    capture script, notes generator, deck/notes consistency check,
                           GGUF statistics
   minilm-reference/       checks the MiniLM numbers against the official ONNX export
+rehearsal/                a virtual run of the talk for practice: script, five Q&A questions,
+                          synthetic voices, video with a clock (its own README)
 justfile                  all commands
 ```
 

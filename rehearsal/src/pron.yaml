@@ -1,0 +1,149 @@
+# Pronunciation for the TTS input only (never in subtitles).
+# term: as written in the script; say: intended pronunciation for a human;
+# tts: what the TTS engine gets instead of the term. Matching is case-sensitive,
+# on whole words (letters, digits, _ , -, . inside a term are part of it).
+# Longer terms win over shorter ones.
+
+people_places:
+  - {term: "Ludwig", say: "LOOD-vig", tts: "Lood-vig", ipa: "lˈudvɪɡ"}
+  - {term: "Weinzierl", say: "VINE-tseerl (German)", tts: "Vine-tseerl", ipa: "vˈIntsɪɹl"}
+  - {term: "Karpathy", say: "kar-PAH-thee", tts: "Kar-pah-thee", ipa: "kɑɹpˈɑθi"}
+  - {term: "Bologna", say: "bo-LOAN-ya", tts: "Bo-lone-ya", ipa: "bəlˈOnjə"}
+  - {term: "Grazie mille", say: "GRAHT-see-eh MEEL-leh", tts: "Grahtsee-eh meel-leh", ipa: "ɡɹˈɑtsiə mˈilə"}
+  - {term: "tortellini", say: "tor-teh-LEE-nee", tts: "tortelleeni", ipa: "tˌɔɹtəlˈini"}
+  - {term: "porticoes", say: "POR-tih-kohz", tts: "portikohz"}
+  - {term: "Deep Space", say: "deep space (the room)", tts: "Deep Space"}
+  - {term: "Waveshare", say: "WAVE-share", tts: "Wave-share"}
+
+products_projects:
+  - {term: "Tracel AI", say: "TRAY-sell A I (unverified, check with Tracel)", tts: "Tray-sell A I"}
+  - {term: "Tracel's", say: "TRAY-sell's", tts: "Tray-sell's"}
+  - {term: "Ratatui", say: "RAT-a-TOO-ee", tts: "Rata-tooey"}
+  - {term: "PyTorch", say: "PIE-torch", tts: "Pie-torch"}
+  - {term: "PyTorch-style", say: "PIE-torch style", tts: "Pie-torch style"}
+  - {term: "LibTorch", say: "lib-torch", tts: "Lib torch"}
+  - {term: "libtorch", say: "lib-torch", tts: "lib torch"}
+  - {term: "NdArray", say: "N D array", tts: "N D array"}
+  - {term: "QEMU", say: "KEE-mew", tts: "Kee-mew"}
+  - {term: "CUDA", say: "KOO-dah", tts: "Koo-dah"}
+  - {term: "ROCm", say: "ROCK-em", tts: "Rock-em"}
+  - {term: "WebGPU", say: "web G P U", tts: "web G P U"}
+  - {term: "CubeCL", say: "cube C L", tts: "cube C L"}
+  - {term: "ONNX Runtime", say: "ONYX runtime", tts: "onyx runtime"}
+  - {term: "ONNX", say: "ONYX", tts: "onyx"}
+  - {term: "GGUF", say: "G G U F", tts: "G G U F"}
+  - {term: "MKL", say: "M K L", tts: "M K L"}
+  - {term: "dfdx", say: "D F D X", tts: "D F D X"}
+  - {term: "SmolLM2", say: "smoll L M two", tts: "Smoll L M two"}
+  - {term: "MiniLM", say: "mini L M", tts: "Mini L M"}
+  - {term: "ResNet-18", say: "rez-net eighteen", tts: "Rez Net eighteen"}
+  - {term: "resnet18", say: "rez-net eighteen", tts: "rez net eighteen"}
+  - {term: "TinyStories", say: "tiny stories", tts: "Tiny Stories"}
+  - {term: "260K", say: "two hundred sixty K", tts: "two hundred sixty K"}
+  - {term: "llama2.c", say: "llama two dot C", tts: "llama two dot C"}
+  - {term: "llama.cpp", say: "llama C P P", tts: "llama C P P"}
+  - {term: "run.c", say: "run dot C", tts: "run dot C"}
+  - {term: "RP2350", say: "R P twenty-three fifty", tts: "R P twenty-three fifty"}
+  - {term: "RP2350B", say: "R P twenty-three fifty B", tts: "R P twenty-three fifty B"}
+  - {term: "Cortex-M33", say: "cortex M thirty-three", tts: "Cortex M thirty-three"}
+  - {term: "Pico", say: "PEE-ko", tts: "Peeko"}
+  - {term: "Raspberry Pi", say: "raspberry pie", tts: "Raspberry Pie"}
+  - {term: "LoRaWAN", say: "LOR-a-wan", tts: "Lora-wan"}
+  - {term: "scikit-image", say: "SIGH-kit image", tts: "sigh-kit image"}
+  - {term: "espeak-ng", say: "E speak N G", tts: "E speak N G"}
+  - {term: "hf-hub", say: "H F hub", tts: "H F hub"}
+  - {term: "candle-transformers", say: "candle transformers", tts: "candle transformers"}
+  - {term: "burn-nostd", say: "burn no stood", tts: "burn no stood"}
+  - {term: "burn-optim", say: "burn OP-tim", tts: "burn optim"}
+  - {term: "web-time", say: "web time", tts: "web time"}
+  - {term: "wasm-bindgen-futures", say: "WAZZ-um bind-gen futures", tts: "wazzum bind gen futures"}
+  - {term: "gemm", say: "gem", tts: "gem"}
+  - {term: "getrandom", say: "get random", tts: "get random"}
+  - {term: "safetensors", say: "safe tensors", tts: "safe tensors"}
+  - {term: "Burnpack", say: "burn pack", tts: "Burn pack"}
+  - {term: "BurnpackStore", say: "burn pack store", tts: "Burn pack store"}
+  - {term: "VarBuilder", say: "var builder", tts: "Var Builder"}
+  - {term: "TensorData", say: "tensor data", tts: "Tensor Data"}
+  - {term: "AdamW", say: "Adam W", tts: "Adam W"}
+  - {term: "ort", say: "O R T (the crate)", tts: "O R T"}
+  - {term: "tch-rs", say: "T C H R S", tts: "T C H R S"}
+  - {term: "mistral.rs", say: "mistral dot R S", tts: "mistral dot R S"}
+  - {term: "text-embeddings-inference", say: "text embeddings inference", tts: "text embeddings inference"}
+  - {term: "VERIFICATION", say: "verification", tts: "verification"}
+  - {term: "UF2", say: "U F two", tts: "U F two"}
+  - {term: "RP2350-Touch-LCD-3.5", say: "R P twenty-three fifty touch L C D three point five", tts: "R P twenty-three fifty Touch L C D three point five"}
+  - {term: "BOOT", say: "boot (the button label)", tts: "boot"}
+  - {term: "C++", say: "C plus plus", tts: "C plus plus"}
+  - {term: "XGBoost", say: "X G boost", tts: "X G boost"}
+
+code_identifiers:
+  - {term: "no_std", say: "no stood (Ludwig's choice: avoids S T D, and short)", tts: "no stood"}
+  - {term: "std", say: "stood", tts: "stood"}
+  - {term: "include_bytes", say: "include bytes", tts: "include bytes"}
+  - {term: "from_static", say: "from static", tts: "from static"}
+  - {term: "from_shared", say: "from shared", tts: "from shared"}
+  - {term: "from_bytes", say: "from bytes", tts: "from bytes"}
+  - {term: "backward_step", say: "backward step", tts: "backward step"}
+  - {term: "zero_grad", say: "zero grad", tts: "zero grad"}
+  - {term: "RUST_BACKTRACE", say: "rust backtrace", tts: "rust back trace"}
+  - {term: "backtrace", say: "back trace", tts: "back trace"}
+  - {term: "matmul", say: "MAT-mul", tts: "mat mul"}
+  - {term: "autodiff", say: "auto-diff", tts: "auto diff"}
+  - {term: "Autodiff", say: "auto-diff", tts: "Auto diff"}
+  - {term: "dtype", say: "D type", tts: "D type"}
+  - {term: "f32", say: "F thirty-two", tts: "F thirty-two"}
+  - {term: "f16", say: "F sixteen", tts: "F sixteen"}
+  - {term: "tanh", say: "tanch", tts: "tanch"}
+  - {term: "ReLU", say: "RAY-loo", tts: "Ray-loo"}
+  - {term: "softmax", say: "soft max", tts: "soft max"}
+  - {term: "pos", say: "poss (the variable)", tts: "poss"}
+  - {term: "nn", say: "N N", tts: "N N"}
+  - {term: "Err", say: "error (the Result variant)", tts: "error"}
+  - {term: "log-mel", say: "log mel", tts: "log mel"}
+  - {term: "y hat", say: "why hat", tts: "why hat"}
+  - {term: "GradientsParams", say: "gradients params", tts: "gradients params"}
+  - {term: "PyTorchToBurnAdapter", say: "PyTorch to Burn adapter", tts: "Pie-torch to Burn adapter"}
+  - {term: "BurnToPyTorchAdapter", say: "Burn to PyTorch adapter", tts: "Burn to Pie-torch adapter"}
+
+acronyms_units:
+  - {term: "CPU", say: "C P U", tts: "C P U"}
+  - {term: "GPU", say: "G P U", tts: "G P U"}
+  - {term: "GPUs", say: "G P Us", tts: "G P Yoos"}
+  - {term: "ML", say: "M L", tts: "M L"}
+  - {term: "VM", say: "V M", tts: "V M"}
+  - {term: "API", say: "A P I", tts: "A P I"}
+  - {term: "KV", say: "K V", tts: "K V"}
+  - {term: "FFT", say: "F F T", tts: "F F T"}
+  - {term: "IMU", say: "I M U", tts: "I M U"}
+  - {term: "SIMD", say: "SIM-dee", tts: "sim-dee"}
+  - {term: "L2", say: "L two", tts: "L two"}
+  - {term: "README", say: "read me", tts: "read me"}
+  - {term: "KiB", say: "kilobytes (KiB on the slides)", tts: "kilobytes"}
+  - {term: "Wi-Fi", say: "WHY-fye", tts: "Wi-Fi"}
+  - {term: "8-bit", say: "eight-bit", tts: "eight-bit"}
+  - {term: "Q&A", say: "Q and A", tts: "Q and A"}
+  - {term: "USB", say: "U S B", tts: "U S B"}
+  - {term: "AI", say: "A I", tts: "A I"}
+  - {term: "RAM", say: "ram (the word)", tts: "ram"}
+  - {term: "QR", say: "Q R", tts: "Q R"}
+  - {term: "top-p", say: "top P", tts: "top P"}
+
+numbers_versions:
+  - {term: "0.11.0", say: "zero point eleven point zero", tts: "zero point eleven point zero"}
+  - {term: "0.22.0", say: "zero point twenty-two point zero", tts: "zero point twenty-two point zero"}
+  - {term: "0.22.1", say: "zero point twenty-two point one", tts: "zero point twenty-two point one"}
+  - {term: "0.11.1", say: "zero point eleven point one", tts: "zero point eleven point one"}
+  - {term: "0.22", say: "zero point twenty-two", tts: "zero point twenty-two"}
+  - {term: "0.21", say: "zero point twenty-one", tts: "zero point twenty-one"}
+  - {term: "0.23", say: "zero point twenty-three", tts: "zero point twenty-three"}
+  - {term: "1.0", say: "one point oh", tts: "one point oh"}
+  - {term: "2.0", say: "two point oh", tts: "two point oh"}
+  - {term: "1e-5", say: "ten to the minus five", tts: "ten to the minus five"}
+  - {term: "1e-8", say: "ten to the minus eight", tts: "ten to the minus eight"}
+  - {term: "2015", say: "twenty fifteen", tts: "twenty fifteen"}
+  - {term: "2022", say: "twenty twenty-two", tts: "twenty twenty-two"}
+  - {term: "2023", say: "twenty twenty-three", tts: "twenty twenty-three"}
+  - {term: "1088", say: "ten eighty-eight", tts: "ten eighty-eight"}
+  - {term: "6th", say: "sixth", tts: "sixth"}
+  - {term: "31st", say: "thirty-first", tts: "thirty-first"}
+  - {term: "20th", say: "twentieth", tts: "twentieth"}

@@ -1,0 +1,515 @@
+# Spoken script of "Burn, little candle, burn!" for the virtual rehearsal.
+# One entry per audio segment. target: seconds planned for the slide (the deck's
+# notes times scaled from 40:00 to 35:00). Markers in the text:
+#   [pause N s]  silence, for example while the audience scans a QR code
+#   [demo N s]   time for the live demo (no speech)
+# Everything else in text is spoken, and is also the subtitle text.
+
+- id: "00_moderator"
+  role: moderator
+  title: "Moderator introduction"
+  target: 20
+  text: |
+    Good morning, everyone, and welcome to Deep Space. Our next speaker has been writing Rust since 2015 and co-organizes the Rust Munich Meetup. He will compare the two machine learning frameworks most of us meet first in Rust: Candle and Burn. Please welcome Ludwig Weinzierl.
+
+- id: "01_slide01"
+  slide: 1
+  key: title
+  title: "Burn, little candle, burn!"
+  target: 26
+  text: |
+    Good morning, I'm Ludwig. This talk is about Candle and Burn, the two machine learning frameworks you meet first in Rust.
+    One promise: everything you'll see ran while I prepared this talk. The code is cut from the real files, and every output is captured, not typed. Where something only compiled, or only ran in an emulator, the slide says so.
+
+- id: "02_slide02"
+  slide: 2
+  key: hook
+  title: "Two ends of one scale"
+  target: 52
+  text: |
+    Let's start with two outputs.
+    On the left, a chat model with 360 million parameters, 386 megabytes, running in Candle on two CPU cores. I asked it what a tensor is.
+    On the right, a language model with 260 thousand parameters. One megabyte of weights, in Burn, without the standard library. It runs on a real RP2350, the chip of the Raspberry Pi Pico 2, with 520 KiB of RAM. And QEMU, an emulated Cortex-M33 with the same memory limit, gives exactly the same text.
+    Same language, same idea, three orders of magnitude apart. This talk is about everything in between.
+
+- id: "03_slide03"
+  slide: 3
+  key: me
+  title: "Ludwig Weinzierl"
+  target: 35
+  flag: "your notes: 121 words for 35 s; the script drops the XGBoost detail"
+  text: |
+    A few words about me. I've been writing Rust since 2015, and I co-organize the Rust Munich Meetup. My background is embedded systems and LoRaWAN, and retro computing as a hobby.
+    I'm not an ML researcher. I'm a Rust developer who wanted ML in his own programs. My first Candle project computed MiniLM sentence embeddings to predict scores of Hacker News comments. You'll meet MiniLM again in a few minutes.
+
+- id: "04_slide04"
+  slide: 4
+  key: question
+  title: "What does it take to do ML in Rust?"
+  target: 35
+  text: |
+    So here's my question: what does it take to do machine learning in Rust?
+    I'll answer it three times. One: use someone else's model, with Candle and the Hugging Face Hub. Two: train one model in both frameworks, from the same start, and see whether they agree. Three: leave the standard library behind, and take Burn down to a microcontroller. And at the very end, onto a real chip.
+    But first: who are these two, and what does a tensor look like in each?
+
+- id: "05_slide05"
+  slide: 5
+  key: s1
+  title: "01 Two frameworks"
+  target: 9
+  text: |
+    So, two frameworks. What does a framework actually do for you, and what does each of these two want to be?
+
+- id: "06_slide06"
+  slide: 6
+  key: jobs
+  title: "What a framework does for you"
+  target: 52
+  text: |
+    Strip any ML framework down, and it does four jobs.
+    Tensors: n-dimensional arrays, plus fast kernels for them, like matrix multiplication.
+    Autodiff: you write the forward computation, and the framework works out the gradients. That's what makes training possible.
+    Weights in and out: a trained model is mostly a file full of numbers. You need to save it, load it, and share it with other tools.
+    And backends: the same model should run on a CPU, a GPU, in a browser, maybe on a microcontroller.
+    Candle and Burn both do all four jobs. Where they differ is which job they consider the main one. Let's meet them.
+
+- id: "07_slide07"
+  slide: 7
+  key: candle
+  title: "Candle"
+  target: 52
+  text: |
+    Candle comes from Hugging Face. The first release was in August 2023, and I used 0.11.0.
+    In their own words, it's a minimalist ML framework with a focus on performance and ease of use. And the README is plain about the goals: serverless inference, and no Python in production.
+    The API feels like PyTorch. Shapes are runtime values, and operations that can fail return a Result.
+    The big asset is candle-transformers. In that version I counted 100 model implementations, plus 22 quantized ones that load GGUF files.
+    Backends: the CPU, with MKL or Apple's Accelerate, CUDA, Metal, and WebAssembly.
+
+- id: "08_slide08"
+  slide: 8
+  key: burn
+  title: "Burn"
+  target: 52
+  text: |
+    Burn is older: the first release was in July 2022. It's developed by Tracel AI, and the current version is 0.22.
+    Burn wants to be the complete package. Training is built in: optimizers, a Learner that runs the loop for you, and a terminal dashboard written with Ratatui.
+    The GPU backends sit on CubeCL, Tracel's compute language: CUDA, ROCm, Metal, Vulkan and WebGPU. On the CPU there's Flex, among others: a pure Rust backend that also runs in WebAssembly, and without the standard library.
+    For existing models, Burn imports ONNX by generating Rust code, and it loads PyTorch and safetensors weights.
+
+- id: "09_slide09"
+  slide: 9
+  key: burn022
+  title: "Burn 0.22 moved the backend"
+  target: 61
+  flag: "dense: two code columns and three bullets"
+  text: |
+    If you looked at Burn before October, you saw code like the left side. Every model and every tensor carried a type parameter, B, for the backend.
+    Burn 0.22 came out on the 6th of October, and it removed that parameter. A tensor is now just a Tensor of rank 2. The backend is a runtime value: you create a device, and you ask for autodiff on that device.
+    Two more changes from the migration guide: the Candle backend is gone, and the NdArray and LibTorch backends are deprecated. Yes: up to 0.21, Burn could run on top of Candle.
+    What did not change: the rank is still part of the type. Keep that in mind.
+    And full disclosure: my abstract still mentions Burn's Backend trait. It was correct when I wrote it.
+
+- id: "10_slide10"
+  slide: 10
+  key: s2
+  title: "02 Tensors"
+  target: 9
+  text: |
+    Let's look at the most basic thing, a tensor, and ask where each framework keeps the information about it.
+
+- id: "11_slide11"
+  slide: 11
+  key: hello-candle
+  title: "One matrix product: Candle"
+  target: 44
+  text: |
+    Here's one matrix product in Candle. Create a device, here the CPU. Create a tensor from a nested array. Multiply it with itself.
+    Notice the question marks. Creating the tensor and the product can both fail, so both return a Result. And notice the borrow: matmul takes a reference to the other tensor.
+    The output shows the values, and below them what Candle tracks: the shape, two by two, and the element type, f32. Both are runtime values.
+    Keep that in mind, and let's do the same thing in Burn.
+
+- id: "12_slide12"
+  slide: 12
+  key: hello-burn
+  title: "One matrix product: Burn"
+  target: 44
+  text: |
+    First thing: no question marks. Burn operations don't return Results.
+    The 2 in Tensor of 2 is the rank, and it's part of the type.
+    And matmul takes self, by value. To use the same tensor twice, I clone it first. That looks expensive, but a clone only bumps a reference count; the data isn't copied. And ownership is the point: when Burn holds the only reference to a buffer, it can reuse it in place.
+    The output shows what Burn tracks: the device, Flex on the CPU, the kind, float, and the dtype, f32.
+
+- id: "13_slide13"
+  slide: 13
+  key: shapes-candle
+  title: "Wrong shapes: Candle returns an error"
+  target: 39
+  text: |
+    Now let's make a mistake on purpose. A two by three matrix times a four by five matrix can't work: the inner dimensions don't match.
+    Candle returns an Err. You can match on it, log it, recover from it. The program decides what happens next. And the message is short and precise: shape mismatch in matmul, with both shapes.
+    That's the PyTorch way, too, where it would be an exception. And one nice detail: with RUST_BACKTRACE set, the error even carries a backtrace.
+
+- id: "14_slide14"
+  slide: 14
+  key: shapes-burn
+  title: "Wrong shapes: Burn panics"
+  target: 44
+  text: |
+    Same mistake in Burn: the program panics. The message is longer: the operation, the reason, and both shapes.
+    This is a design decision, not an omission. Burn treats a shape mismatch like indexing a slice out of bounds: a bug in your program, not a condition you're expected to handle. Candle hands it to you as a value instead.
+    Neither is wrong. But it changes how you write code. In Candle you propagate errors. In Burn you check shapes that come from outside before the call, and you test the rest.
+
+- id: "15_slide15"
+  slide: 15
+  key: rank
+  title: "Wrong rank: Burn does not compile"
+  target: 44
+  flag: "your notes: 126 words for 44 s; script shortened"
+  text: |
+    Now a different mistake: a matrix times a vector, rank 2 times rank 1. Burn's matmul wants the same rank on both sides, and the rank is a const generic. So this doesn't even compile: expected 2, found 1.
+    In Candle the same line compiles, and at run time you get the shape error from before.
+    So Burn moved one piece of information, the rank, into the type system. The sizes stay runtime values in both. Candle's README says why it doesn't go further: full shapes in the types, the way dfdx does it, can be daunting.
+
+- id: "16_slide16"
+  slide: 16
+  key: where
+  title: "Where the information lives"
+  target: 61
+  skip: true
+  text: |
+    Here's the summary of the last few slides, in one table.
+    The rank: a value in Candle, part of the type in Burn. The shape: a value in both. The element type: a value in Candle. In Burn, the kind, float, int or bool, is in the type, and the width, like f32 or f16, is a value. The device: a value in both, and in Burn only since 0.22.
+    Shape errors: an Err in Candle, a panic in Burn. And operations borrow in Candle, and take ownership in Burn.
+    If you remember one row, make it this one: in Candle, everything about a tensor is a runtime value. In Burn, the rank and the kind are compile-time facts. The rest of the talk builds on this table.
+
+- id: "17_slide17"
+  slide: 17
+  key: s3
+  title: "03 Candle, batteries included"
+  target: 9
+  text: |
+    Part one: someone else's model. This is Candle's home ground. Three models, three programs, all from the Hub.
+
+- id: "18_slide18"
+  slide: 18
+  key: hub
+  title: "A model is a download away"
+  target: 52
+  text: |
+    Candle comes from Hugging Face, and it shows. Getting a model is one call chain with the hf-hub crate: name the repository, name the file, send. The file lands in the Hugging Face cache in your home directory, and later calls read it from there.
+    These are the three models for this part: ResNet-18 for images, MiniLM for sentences, and SmolLM2, a chat model with 360 million parameters, as an 8-bit GGUF file. All three come from the original publishers' repositories.
+    After the first run, I cut the network, and all three programs still worked. On conference Wi-Fi, that matters.
+
+- id: "19_slide19"
+  slide: 19
+  key: classify
+  title: "An image: ResNet-18"
+  target: 66
+  text: |
+    First, an image. The bytes from the Hub go into a VarBuilder, which hands out tensors by name. The architecture comes from candle-transformers: resnet18, with 1 000 classes. The weights are 47 megabytes. One forward pass, and softmax turns the scores into probabilities.
+    The cat is from scikit-image's sample data: 81.7 percent Egyptian cat, then tiger cat, then tabby. The coffee picture in the repository gives 95.5 percent espresso.
+    What you don't see is the function that scales the image to 224 by 224 and normalizes it with ImageNet's mean and standard deviation. That part is yours. And if you get it wrong, the model still answers. Just worse.
+    Keep that in mind. It's a pattern, and we'll see it again in the next two programs.
+
+- id: "20_slide20"
+  slide: 20
+  key: similar
+  title: "A sentence: MiniLM"
+  target: 70
+  text: |
+    Next, sentences, with MiniLM, the model from my Hacker News project: 91 megabytes from the Hub. It gives you one vector of 384 numbers per token. But for a sentence, you want one vector.
+    So you average over the tokens. But only over the real ones! The batch is padded to the longest sentence, and the attention mask says which positions are padding. The mask goes in twice: into the model, so attention skips the padding, and into the average.
+    Then you divide each vector by its length. Now a plain matrix product gives the cosine similarity of the question with every sentence.
+    Get the padding wrong, and nothing complains. It compiles, it runs, and every vector is a little off. Correct Rust, wrong embeddings. That's why I checked these numbers against the official ONNX version of the model, in ONNX Runtime. They agree to better than a millionth.
+
+- id: "21_slide21"
+  slide: 21
+  key: similar-out
+  title: "Five sentences about Bologna"
+  target: 57
+  text: |
+    Here are the results. Five sentences about Bologna, and four questions.
+    "Where can I eat tonight?" The tortellini sentence wins, although the two share no word.
+    "It is raining." The porticoes, which keep the streets dry.
+    "How old is the city?" The university, from 1088. Related, not quite the answer: it's just the only sentence with a date.
+    The scores are small, around 0.3, but the order is right, and the order is what you use.
+    And one question none of these sentences can answer: "How do I reset my router?" It still gets a winner, the university, at 0.05. There is always a nearest sentence. Where to draw the line depends on your data, so measure it.
+
+- id: "22_slide22"
+  slide: 22
+  key: ask
+  title: "A chat: SmolLM2, one token at a time"
+  target: 66
+  text: |
+    Third, a chat model. This loop is all of text generation.
+    The first time round, the input is the whole prompt. After that, only the newest token. pos tells the model how many tokens it has already seen, and the KV cache inside the model keeps their keys and values. So nothing is computed twice. Without the cache, every step would run over the whole text again.
+    The model returns a score for every possible next token. The sampler picks one. If it's the end marker, we stop. Otherwise we append it, and print it as soon as the tokenizer can turn it into text, because one token is not always a whole character.
+    That's the whole loop, and it stops after 256 tokens at the latest. The model, the cache and the sampler come from Candle and its neighbours. The loop is yours.
+
+- id: "23_slide23"
+  slide: 23
+  key: ask-out
+  title: "What it answers"
+  target: 44
+  text: |
+    The chat template is plain text, with the markers the model saw during fine-tuning. Get them wrong, and the model still talks. It just stops answering.
+    And here's the answer: one sentence, as asked. 31 tokens at 4.2 tokens per second, on two CPU cores of a cloud VM, with 8-bit weights.
+    Sampling uses temperature 0.5 and top-p 0.9, with a fixed seed. Same seed, same answer, on this machine. And on a Mac, Metal is one cargo feature away. I didn't measure that.
+
+- id: "24_slide24"
+  slide: 24
+  key: you-write
+  title: "What Candle gives you, what you write"
+  target: 44
+  skip: true
+  text: |
+    Here's the pattern behind all three programs. Candle and its neighbours give you the model code, the weights from the Hub, the tokenizers, the GGUF reader, the sampler and the KV cache.
+    You write the part around the model: scaling the image, averaging the token vectors, the chat template, and the generation loop.
+    And that right column is where the bugs hide. A wrong preprocessing step doesn't crash. It makes the model quietly worse. So when the output looks off, look there first. That's true for every model you download, not just these three.
+
+- id: "25_slide25"
+  slide: 25
+  key: s4
+  title: "04 Learning sin(x)"
+  target: 9
+  text: |
+    Part two. One problem, two frameworks, exactly the same starting point. Do they agree? Let's find out.
+
+- id: "26_slide26"
+  slide: 26
+  key: loop
+  title: "Learning, in four lines"
+  target: 52
+  text: |
+    This is all the theory we need today.
+    Predict: a model is a function with weights, w. You feed it an input, x, and it predicts y hat.
+    Measure: a loss says how wrong the prediction is. Here, the mean squared error. One number.
+    Blame: autodiff computes the gradient, how much the loss changes when each weight changes.
+    Adjust: move every weight a small step against its gradient. The step size is the learning rate. Adam, the optimizer we use, is a smarter version of this step: it keeps running averages per weight.
+    Repeat until the loss stops falling. Every training run in this talk follows this loop. The classifiers use cross-entropy instead of squared error.
+
+- id: "27_slide27"
+  slide: 27
+  key: sine-task
+  title: "Experiment 1: learn sin(x)"
+  target: 44
+  text: |
+    The task: learn the sine function between minus pi and pi, from 256 sample points.
+    The network: one input, two hidden layers of 32 neurons with tanh, and one output. 1 153 weights in total.
+    Training: Adam, learning rate 0.01, 2 000 steps, all points at once.
+    And the detail that makes it fair: both frameworks start from the same initial weights, read from one safetensors file. Candle's CPU random generator can't be seeded, so that file also keeps the experiment reproducible.
+
+- id: "28_slide28"
+  slide: 28
+  key: sine-model
+  title: "The model, twice"
+  target: 44
+  text: |
+    Here's the forward pass, in both frameworks. Line by line, it's the same model: layer one, tanh, layer two, tanh, layer three. Three linear layers, two activations, nothing else.
+    The differences are exactly the ones from the tensor section. Candle takes a reference and returns a Result, so there's a question mark after every call. Burn takes the tensor by value and returns a tensor.
+    And notice what's no longer there: no backend type parameter in Burn. That's 0.22. If you can read one of these, you can read the other.
+
+- id: "29_slide29"
+  slide: 29
+  key: sine-train-candle
+  title: "Training loop: Candle"
+  target: 44
+  text: |
+    The training loop in Candle. Put the 256 x values into a tensor, and compute y as the sine of x.
+    The optimizer is AdamW, with the weight decay set to zero, which makes it plain Adam. Candle's default weight decay is 0.01, so this matters for a fair comparison.
+    Then the loop. Compute the loss, and backward_step does the backward pass and the update in one call. report prints the loss every 250 steps, and those are the numbers you'll see in a minute.
+
+- id: "30_slide30"
+  slide: 30
+  key: sine-train-burn
+  title: "Training loop: Burn"
+  target: 48
+  text: |
+    And the same loop in Burn. One adjustment for fairness: by default, Burn's Adam uses an epsilon of 1e-5, and Candle uses 1e-8. So I set Burn's to 1e-8.
+    Model and data live on a Flex device with autodiff on top. Forward pass, loss, backward. The gradients come back as a value, GradientsParams maps them to the model's parameters, and the optimizer takes the model by value and gives you back the updated model. Ownership again.
+    If you know PyTorch: there's no zero_grad. The step consumes the gradients.
+
+- id: "31_slide31"
+  slide: 31
+  key: sine-result
+  title: "Same start, same data, same curve"
+  target: 61
+  flag: "your notes: 166 words for 61 s; script shortened"
+  text: |
+    And here's the answer: the loss after every 250 updates, Candle on the left, Burn on the right.
+    From step 250 on, the printed numbers are identical, to six decimals. Only the first loss differs, in the last digit. That's floating point: most likely Burn's SIMD code adds in a different order, and a different order rounds differently.
+    So two frameworks, written by different teams, compute the same thing. That checks the code of both.
+    Whether the model is any good is a different question, and that's the plot: the line is the real sine, the dots are the model. The worst error over the training points is 0.0075.
+    The time per step is about the same for both. Informal, with a tiny model, so no performance conclusions.
+
+- id: "32_slide32"
+  slide: 32
+  key: layout
+  title: "The detail that made it work"
+  target: 44
+  skip: true
+  text: |
+    One detail made the shared start file work, and it's a classic trap.
+    Candle follows PyTorch: a linear layer stores its weight as out by in, and the forward pass multiplies by the transpose. Burn stores it in by out, and multiplies directly. Same layer, same math, transposed storage.
+    So when Burn loads a PyTorch-style file, it needs an adapter that transposes the linear weights: PyTorchToBurnAdapter. BurnToPyTorchAdapter goes the other way. Forget the adapter, and you get a shape error. Or, worse, with square matrices: silently wrong results.
+
+- id: "33_slide33"
+  slide: 33
+  key: s5
+  title: "05 Burn without std"
+  target: 9
+  text: |
+    Part three: we leave the standard library behind. No operating system, no std, and very little memory.
+
+- id: "34_slide34"
+  slide: 34
+  key: steps
+  title: "Four steps, one #![no_std] crate each"
+  target: 52
+  flag: "your notes: 147 words for 52 s; script shortened"
+  text: |
+    This part is my burn-nostd repository. Four steps, each a bit harder: run a model, train one on the device, handle audio, and run someone else's pretrained model.
+    Each step is one no_std library crate. The desktop programs, the browser modules and the firmware are thin shells around it.
+    Everything here ran on the desktop, in the browser, and in QEMU, on an emulated Cortex-M33 limited to the Pico 2's 520 KiB of RAM. Step four also ran on a real board.
+    And Candle isn't in this part. It needs std: its build for the Pico's target stops at getrandom.
+
+- id: "35_slide35"
+  slide: 35
+  key: step1
+  title: "1 · Inference: the weights stay in flash"
+  target: 66
+  text: |
+    Step one: inference. This is a smaller sine model, separate from part two: 321 parameters, two hidden layers of 16 with ReLU.
+    The weights are a Burnpack file, compiled into the binary with include_bytes, and loaded with BurnpackStore from_static. On the microcontroller, they never leave flash.
+    The one trap: Burnpack wants its data aligned to 256 bytes, and include_bytes only guarantees one. Hence the little wrapper struct.
+    The file is 2 564 bytes, and 1 284 of them are the weights; the rest is header and padding. A few microseconds per inference on the desktop, a largest error of 0.02, and on the emulated Cortex-M33 the heap peaks under 8 KiB. The training program, also without std, reproduces this file byte for byte.
+
+- id: "36_slide36"
+  slide: 36
+  key: step2
+  title: "2 · Training on the device"
+  target: 66
+  text: |
+    Step two: training, on the device. This Learner is a small helper of the demo, not Burn's Learner. It collects five synthetic motion windows for each of four gestures: rest, shake, circle and punch. Five examples per gesture is what you'd ask from a user, too. Then it trains for 15 epochs. Burn's autodiff works without std; the device is simply an autodiff device.
+    On the desktop, that takes 13 milliseconds, and the network gets all 100 new windows right. But they come from the same synthetic generator as the training windows. So this shows that training works, not how well it would work on real motion.
+    On the emulated Cortex-M33, the heap peaks at 41 KiB during training. On a Pico 2, the examples would come from an IMU and a button. That firmware builds, but I haven't run it on a board.
+
+- id: "37_slide37"
+  slide: 37
+  key: step2-adam
+  title: "Two things std would have given"
+  target: 52
+  skip: true
+  text: |
+    Inside train: one example at a time. Forward, loss, backward, optimizer step. Two things std would have given me were missing.
+    First, the optimizer. burn-optim 0.22.0 doesn't compile without std for this target: six errors. So adam is a small crate of its own, 78 lines.
+    Second, memory. Without std, gemm can't ask for the cache sizes, so on Arm it assumes a 512 KiB L2 cache, and every small matrix-matrix product allocates a packing buffer that size. Our heap is 256 KiB. With one example at a time, every product is a matrix times a vector, and those need no packing.
+
+- id: "38_slide38"
+  slide: 38
+  key: step3
+  title: "3 · Audio: teach it words"
+  target: 79
+  flag: "fullest slide: five boxes and three numbers"
+  text: |
+    Step three: audio. Teach it words, from five recordings each.
+    Left to right: 16 kilohertz audio. A log-mel spectrum, with an FFT written for this. A segmenter that finds words, because they're louder than the noise floor it measured at the start. Then features: ten time slices of 16 bands each, so a slow and a fast "yes" look alike. With the mean removed, so a loud and a quiet one do too. Plus the length of the word. 161 numbers.
+    Only the last box learns: a small network with 5 448 parameters. Everything before it is fixed signal processing.
+    Training on 20 recordings takes 167 milliseconds on the desktop. Then it hears 12 new words, and gets 11 right. On the emulated Cortex-M33, the heap peaks at 212 KiB.
+    An honest footnote: all recordings are synthetic, from one espeak-ng voice with random speed, pitch and loudness, the training words and the test words alike. Real voices and real microphones are untested.
+
+- id: "39_slide39"
+  slide: 39
+  key: step4
+  title: "4 · Someone else's model, straight from flash"
+  target: 66
+  flag: "your notes: 163 words for 66 s; script shortened"
+  text: |
+    Step four: someone else's pretrained model. Andrej Karpathy's TinyStories 260K, a tiny Llama, in the file format of his llama2.c project, unchanged. The Llama code is my own, on Burn tensors.
+    The trick is three calls. Bytes from_static wraps a slice of the checkpoint in flash. from_shared hands it to Burn without copying. And TensorData from_bytes makes it a tensor. Every weight matrix borrows the file.
+    So 1.1 megabytes of weights run in 520 KiB of RAM. The heap peaks at 180 KiB, mostly KV cache. At the model's full 512 positions, the cache alone would need 640 KiB, so the firmware cuts the context to 128.
+    And at temperature zero, the text is the same as from llama2.c's own C program.
+
+- id: "40_slide40"
+  slide: 40
+  key: board
+  title: "The same model on a real chip"
+  target: 22
+  flag: "add about 10 s if you hand the board over here"
+  text: |
+    And here it is, on a real chip: an RP2350 at 150 megahertz. 4.3 tokens per second, and the same stories, word for word, as in QEMU. Slow, and not profiled yet. The board is going round now: have a look.
+
+- id: "41_slide41"
+  slide: 41
+  key: took
+  title: "What it took"
+  target: 52
+  skip: true
+  text: |
+    So what did it take? Burn's core crates build without std: tensor, autodiff, nn, store, and the Flex backend. That part is real.
+    A complete no_std program ran into five things. web-time and wasm-bindgen-futures pull std back in: two small shims replace them. burn-optim doesn't compile: 78 lines of Adam replace it. gemm's packing buffer: one example at a time. Burnpack's alignment: a wrapper struct. And a no_std Linux binary still needs two unwinder symbols.
+    None of it needed a fork of Burn. It's all user code, and the first three are worth upstream issues.
+
+- id: "42_slide42"
+  slide: 42
+  key: live
+  title: "Try it now, on your phone"
+  target: 52
+  flag: "live demo time is a guess (20 s)"
+  text: |
+    And you can try all four steps right now, on your phone. The same crates as the firmware, compiled to WebAssembly with zero imports. They run in your browser, and nothing leaves the page.
+    Let me show you the keywords page. Use the sample voice. Train. And play the sample sentence.
+    [demo 20 s]
+    You hear the words, and you see them recognized, right in the browser.
+    If the network fails, there are videos of all four.
+
+- id: "43_slide43"
+  slide: 43
+  key: s6
+  title: "06 Choosing"
+  target: 9
+  text: |
+    So, after all this, the question you came for: which one should you use? Here's my answer.
+
+- id: "44_slide44"
+  slide: 44
+  key: choose
+  title: "Which one?"
+  target: 79
+  flag: "the SmolLM2 story is optional: cutting it saves about 18 s"
+  text: |
+    My reading, as of today. And I didn't test GPUs.
+    To run a model that already exists, start with Candle: the model zoo, the tokenizers, GGUF, and the Hub at the door.
+    To train in Rust, Burn has the Learner built in. Candle trains too, with less around it.
+    Training on the device, and microcontrollers in general: Burn, because its autodiff and its Flex backend work without std. Candle needs std.
+    GPUs beyond CUDA and Metal: Burn, through CubeCL. An ONNX model: Burn's importer turns it into Rust code.
+    And you can use both: weights move between them as safetensors, as long as the tensor names match and you mind the layout of linear layers.
+    One warning from my own experience. When I first tried SmolLM2 with Burn 0.21, it stopped at a dtype mismatch. "Supported" needs the whole sentence: this model, these operations, this dtype, this backend, this version.
+
+- id: "45_slide45"
+  slide: 45
+  key: takeaways
+  title: "Three things I take home"
+  target: 44
+  text: |
+    Three things I take home.
+    One: Candle is batteries included. A model from the Hub is a download and a few lines. The code you write is the code around the model.
+    Two: Burn goes all the way down. The same no_std crates train on a desktop and on an emulated Cortex-M33 in 520 KiB of RAM. And a language model runs on a real RP2350.
+    Three: they agree. Same start, same data, and the printed losses match to six decimals from step 250 on.
+
+- id: "46_slide46"
+  slide: 46
+  key: try
+  title: "Try it"
+  target: 26
+  text: |
+    Everything is in two places. The talk repository has the slides, my notes, the Candle programs and both sine runs. burn-nostd has the four steps, and its page runs the demos. Scan the codes now, or search GitHub for burn-nostd later.
+    [pause 5 s]
+
+- id: "47_slide47"
+  slide: 47
+  key: end
+  title: "Grazie mille"
+  target: 13
+  text: |
+    Grazie mille. Thank you very much! I'm happy to take your questions. The QR code here is the talk repository, with the slides and these notes.

@@ -13,6 +13,10 @@ tools/minilm-reference/target/
 # downloaded or produced locally
 tools/minilm-reference/model.onnx
 /board-log.txt
+rehearsal/out
+rehearsal/models
+rehearsal/.venv
+__pycache__/
 # private: licensed fonts and anything built with them
 fonts/private/*
 !fonts/private/.gitignore

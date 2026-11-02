@@ -1,0 +1,15 @@
+# Python packages for tools/, tested with Python 3.13 on Linux x86-64.
+# build_step1.py needs PyYAML and num2words; make_assets.py also Pillow, numpy and
+# soundfile; tts_kokoro.py all of them. rebuild.py needs none (standard library and ffmpeg).
+PyYAML==6.0.3
+num2words==0.5.14
+Pillow==12.3.0
+numpy==2.5.3
+soundfile==0.14.0
+onnxruntime==1.29.0
+kokoro-onnx==0.6.1
+misaki==0.7.4
+phonemizer==3.4.0
+espeakng-loader==0.2.4
+spacy==3.8.18
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
